@@ -1,0 +1,20 @@
+{
+  "name": "ss14-chemboxes",
+  "version": "1.0.0",
+  "description": "Making mediawiki chemboxes for the SS14 wiki",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fluent/bundle": "^0.18.0",
+    "change-case-all": "^2.1.0",
+    "debug": "^4.3.7",
+    "fs": "^0.0.1-security",
+    "js-yaml": "^4.1.0",
+    "prompt-sync": "^4.2.0",
+    "simple-git": "^3.26.0"
+  }
+}
