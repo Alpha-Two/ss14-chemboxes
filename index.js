@@ -4,23 +4,24 @@ var yaml = require("js-yaml");
 const { exit } = require("process");
 const { Case } = require("change-case-all");
 var { FluentBundle, FluentResource } = require("@fluent/bundle");
-const debug = require('debug');
-const { parse } = require("path");
-debug.enable('simple-git,simple-git:*');
 
-
+// ****************** CONFIGURING CONSTANTS ******************
 const resourcesFolder = "./space-station-14/Resources/";
+// ***********************************************************
 
-var fullData = [];
 
+// loading fluent variables
 var bundle = new FluentBundle("en-US");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/food/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/drink/");
 
+
+var fullData = []
 var reagentArray = []
 var reactions = []
 
+// internal commandline let's go! TODO make this take arguments from the actual commandline + a config file
 while (true) {
 	let args = parseArgs(prompt("> ").split(" "));
 	console.log(args)
@@ -37,8 +38,9 @@ while (true) {
 	}
 }
 
+// TODO add a way of reading ALL reagents and reactions
 function fullUpdate(args) {
-	if(args.params.y) {
+	if (args.params.y) {
 		reagentArray.push(readYAML(
 			resourcesFolder + "Prototypes/Reagents/" + args.params.y + ".yml"
 		))
@@ -52,16 +54,18 @@ function fullUpdate(args) {
 	}
 	reactions = reactions.flat()
 	output = []
-	
+
 	for (let i = 0; i < reagentArray.length; i++) {
-		output[i] = outputFromJSON(reagentArray[i], reactions)
+		output[i] = outputFromYAML(reagentArray[i], reactions)
 	}
 	output = output.flat()
-	console.log(JSON.stringify(output, null, 3))
+
+	fs.writeFileSync("./output.json", JSON.stringify(output, null, 4));
 	return output
 }
 
-function outputFromJSON(reagents, reactions) {
+// takes YAML (as a JSON object) and turns it into the output schema
+function outputFromYAML(reagents, reactions) {
 	let output = [];
 	console.log(reagents, reactions)
 	for (let i = 0; i < reagents.length; i++) {
@@ -113,7 +117,6 @@ function outputFromJSON(reagents, reactions) {
 			}
 		}
 	}
-	let errors = 0;
 	for (const e in output) {
 		output[e].effects = [];
 		let f = output[e].metabolisms;
@@ -135,10 +138,10 @@ function outputFromJSON(reagents, reactions) {
 
 		output[e].effectLine = output[e].effects.join("")
 	}
-	fs.writeFileSync("./output.json", JSON.stringify(output, null, 4));
 	return output;
 }
 
+// This is mostly for testing
 function makeDiv(args) {
 	let data = {};
 	fullData.forEach((e) => {
@@ -198,6 +201,7 @@ function makeDiv(args) {
 	);
 }
 
+// used by outputFromYAML, is a ton of spaghetti code (looking at you massive switch statement)
 function effectsHandler(data, fullObject) {
 	let statusEffects = {
 		Stun: "stunning",
@@ -520,11 +524,12 @@ function effectsHandler(data, fullObject) {
 	return chanceString + rs;
 }
 
+// gets the "real name" of a reagent. Usually this is just reagent-name-[ID in lowercase] but sometimes it is different so just putting the exceptions in manually
 function rName(reagent) {
 	if (Case.lower(reagent) == "copperblood")
 		return rName("HemocyaninBlood");
 	if (Case.lower(reagent) == "soapreagent")
-		return rName("soap");
+		return rName("Soap");
 	try {
 		return bundle.getMessage("reagent-name-" + Case.kebab(reagent)).value;
 	} catch (err) {
@@ -538,7 +543,7 @@ function rName(reagent) {
 	throw new Error("Couldn't find " + reagent);
 }
 
-
+// I am realising that this should return a natural number and not an integer but I just pass all the values in with Maths.Abs now anyways
 function lNatFix(num, pres) {
 	pres = pres || 0;
 	num = num * Math.pow(10, pres);
@@ -547,6 +552,7 @@ function lNatFix(num, pres) {
 	return num.toString();
 }
 
+// I mean it works, could be abstracted if we ever need to do kPa or something
 function lFormJ(joules) {
 	let j = lFormGen(joules);
 	switch (j[1]) {
@@ -580,6 +586,7 @@ function lFormGen(unit) {
 	return [unit, places];
 }
 
+// stolen from the game's localisation manager
 function makeList(array) {
 	switch (array.length) {
 		case 0:
@@ -605,6 +612,7 @@ function makeList(array) {
 	}
 }
 
+// because of course the YAML has something that the parser can't handle
 function readYAML(filePath) {
 	return yaml.load(
 		fs.readFileSync(filePath, "utf8").replace(/!type:/g, "class: ")
