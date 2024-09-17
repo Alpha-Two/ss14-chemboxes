@@ -5,6 +5,7 @@ const { exit } = require("process");
 const { Case } = require("change-case-all");
 var { FluentBundle, FluentResource } = require("@fluent/bundle");
 const debug = require('debug');
+const { parse } = require("path");
 debug.enable('simple-git,simple-git:*');
 
 
@@ -15,11 +16,15 @@ var fullData = [];
 var bundle = new FluentBundle("en-US");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/food/");
-
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/drink/");
+
+var reagentArray = []
+var reactions = []
+
 while (true) {
-	let args = prompt("> ").split(" ");
-	switch (args[0]) {
+	let args = parseArgs(prompt("> ").split(" "));
+	console.log(args)
+	switch (args.custom[0]) {
 		case "g":
 			fullData = fullUpdate(args);
 			break;
@@ -33,18 +38,32 @@ while (true) {
 }
 
 function fullUpdate(args) {
-	let reagents = readYAML(
-		resourcesFolder + "Prototypes/Reagents/" + args[1] + ".yml"
-	);
-	let reactions = []
-	try {
-		reactions = readYAML(
-			resourcesFolder + "Prototypes/Recipes/Reactions/" + args[1] + ".yml"
-		);
-	} catch (err) {
-		console.error("Couldn't get reactions");
+	if(args.params.y) {
+		reagentArray.push(readYAML(
+			resourcesFolder + "Prototypes/Reagents/" + args.params.y + ".yml"
+		))
+		try {
+			reactions.push(readYAML(
+				resourcesFolder + "Prototypes/Recipes/Reactions/" + args.params.y + ".yml"
+			))
+		} catch (err) {
+			console.error("Couldn't get reactions");
+		}
 	}
+	reactions = reactions.flat()
+	output = []
+	
+	for (let i = 0; i < reagentArray.length; i++) {
+		output[i] = outputFromJSON(reagentArray[i], reactions)
+	}
+	output = output.flat()
+	console.log(JSON.stringify(output, null, 3))
+	return output
+}
+
+function outputFromJSON(reagents, reactions) {
 	let output = [];
+	console.log(reagents, reactions)
 	for (let i = 0; i < reagents.length; i++) {
 		const e = reagents[i];
 		output[i] = {};
@@ -123,7 +142,7 @@ function fullUpdate(args) {
 function makeDiv(args) {
 	let data = {};
 	fullData.forEach((e) => {
-		if (e.id == args[1]) {
+		if (e.id == args.custom[1]) {
 			data = e;
 		}
 	});
@@ -600,4 +619,22 @@ function loadFluentDir(dir) {
 		bundle.addResource(new FluentResource(fs.readFileSync(dir + e, "utf8")));
 		console.log("Loaded " + e);
 	}
+}
+
+function parseArgs(args) {
+	let parsedArgs = {
+		custom: [],
+		params: {}
+	}
+
+	for (let i = 0; i < args.length; i++) {
+		if (args[i].substring(0, 1) != "-") parsedArgs.custom.push(args[i]);
+		else {
+			let option = args[i].substring(1)
+			i++
+			let value = args[i]
+			parsedArgs.params[option] = value
+		}
+	}
+	return parsedArgs
 }
