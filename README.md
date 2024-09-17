@@ -10,7 +10,7 @@ you can either run commands headless by editing the `commandArray` variable in i
 `o` takes the next argument and outputs the required data for a Manual Chem Box template. (for example, `o Dylovene`)
 
 - TODO make all current YAML files actually work
-  - DONE `medicine` and `botany`
+  - DONE `medicine` and `botany` (but not at the same time ffs)
 - TODO fix current commands
 - TODO make it headless by taking arguments from the actual commandline
 - TODO integrate with MediaWiki
