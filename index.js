@@ -7,7 +7,7 @@ var { FluentBundle, FluentResource } = require("@fluent/bundle");
 
 // ****************** CONFIGURING CONSTANTS ******************
 const resourcesFolder = "./space-station-14/Resources/";
-const commandArray = ["g -y botany"]
+const commandArray = ["g -y medicine"]
 // ***********************************************************
 
 
@@ -26,7 +26,7 @@ var reactions = []
 // internal commandline let's go! TODO make this take arguments from the actual commandline + a config file
 while (true) {
 	let args = ""
-	
+
 	if (commandArray[0]) {
 		console.log("\n\nRunning Headless...\n\n")
 		args = commandArray.pop().split(" ")
@@ -84,6 +84,18 @@ function outputFromYAML(reagents, reactions) {
 		output[i].id = e.id;
 		output[i].group = e.group;
 		output[i].color = e.color;
+
+		let colors = e.color.substring(1).match(/../g);
+		colors[0] = parseInt(colors[0], 16) * 0.299;
+		colors[1] = parseInt(colors[1], 16) * 0.587;
+		colors[2] = parseInt(colors[2], 16) * 0.114;
+		if (colors[0] + colors[1] + colors[2] > 186) {
+			colors = "dark";
+		} else {
+			colors = "light";
+		}
+		output[i].textColorTheme = colors;
+
 		output[i].flavor = e.flavor;
 		output[i].metabolisms = e.metabolisms;
 		output[i].plantMetabolism = e.plantMetabolism
@@ -539,7 +551,7 @@ function effectsHandler(data, fullObject, isPlant) {
 				break;
 			case "PlantPhalanximine":
 				rs = (chanceString ? "restore " : "Restores ") + "viability to a plant rendered nonviable by a mutation"
-				;break
+					; break
 			case "PlantCryoxadone {}":
 				rs = (chanceString ? "age " : "Ages ") + "back the plant, depending on the plant's age and time to grow"
 				break;

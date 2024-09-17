@@ -130,3 +130,4 @@ dist
 .pnp.*
 
 space-station-14/
+output.json

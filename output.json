@@ -1,47 +1,174 @@
 [
     {
-        "id": "EZNutrient",
-        "group": "Botanical",
-        "color": "#664330",
-        "flavor": "bitter",
+        "id": "Cryptobiolin",
+        "group": "Medicine",
+        "color": "#081a80",
+        "textColorTheme": "light",
+        "flavor": "medicine",
         "metabolisms": {
-            "Food": {
+            "Medicine": {
                 "effects": [
                     {
-                        "class": "SatiateHunger",
+                        "class": "GenericStatusEffect",
+                        "key": "Stutter",
+                        "component": "ScrambledAccent",
+                        "time": 2
+                    },
+                    {
+                        "class": "Drunk",
+                        "slurSpeech": false,
+                        "boozePower": 20
+                    }
+                ]
+            }
+        },
+        "name": "cryptobiolin",
+        "desc": "Causes confusion and dizziness.",
+        "physicalDesc": "fizzy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Cryptobiolin",
+                "reactants": [
+                    [
+                        "potassium",
+                        1,
+                        false
+                    ],
+                    [
+                        "oxygen",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "cryptobiolin",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Causes stuttering for at least 0.2s without accumulation",
+            "\n",
+            "* Causes drunkness"
+        ],
+        "effectLine": "'''Medicine''':\n* Causes stuttering for at least 0.2s without accumulation\n* Causes drunkness"
+    },
+    {
+        "id": "Dylovene",
+        "group": "Medicine",
+        "color": "#3a1d8a",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Poison": -1
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
                             }
                         ],
-                        "factor": 3
+                        "damage": {
+                            "groups": {
+                                "Brute": 2
+                            }
+                        }
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20
+                            }
+                        ],
+                        "type": "Local",
+                        "visualType": "Medium",
+                        "messages": [
+                            "generic-reagent-effect-nauseous"
+                        ],
+                        "probability": 0.2
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ],
+                        "probability": 0.02
+                    },
+                    {
+                        "class": "Drunk",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 15,
+                                "max": null
+                            }
+                        ]
                     }
                 ]
             }
         },
         "plantMetabolism": [
             {
-                "class": "PlantAdjustNutrition",
-                "amount": 2
+                "class": "PlantAdjustToxins",
+                "amount": -10
+            },
+            {
+                "class": "PlantAdjustHealth",
+                "amount": 1
             }
         ],
-        "name": "EZ nutrient",
-        "desc": "Give your plants some of those EZ nutrients! Dionas find this delicious.",
-        "physicalDesc": "thick",
+        "name": "dylovene",
+        "desc": "A broad-spectrum anti-toxin, which treats toxin damage in organisms. Overdosing will cause vomiting, dizzyness and pain.",
+        "physicalDesc": "translucent",
         "recipes": [
             {
                 "type": "reaction",
-                "id": "EZNutrient",
+                "id": "Dylovene",
                 "reactants": [
                     [
-                        "nitrogen",
+                        "silicon",
                         1,
                         false
                     ],
                     [
-                        "phosphorus",
+                        "nitrogen",
                         1,
                         false
                     ],
@@ -53,98 +180,8 @@
                 ],
                 "products": [
                     [
-                        "EZ nutrient",
+                        "dylovene",
                         3
-                    ]
-                ]
-            }
-        ],
-        "effects": [
-            "'''Food''':",
-            "\n",
-            "* Satiates hunger averagely when the metabolizing organ is a Plant organ",
-            "\n",
-            "'''Plants''':",
-            "\n",
-            "* Adjusts nutrition level by <span style=\"color:green\">2</span>"
-        ],
-        "effectLine": "'''Food''':\n* Satiates hunger averagely when the metabolizing organ is a Plant organ\n'''Plants''':\n* Adjusts nutrition level by <span style=\"color:green\">2</span>"
-    },
-    {
-        "id": "Left4Zed",
-        "group": "Botanical",
-        "color": "#5b406c",
-        "flavor": "bitter",
-        "metabolisms": {
-            "Medicine": {
-                "effects": [
-                    {
-                        "class": "SatiateHunger",
-                        "conditions": [
-                            {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
-                            }
-                        ],
-                        "factor": 3
-                    },
-                    {
-                        "class": "HealthChange",
-                        "damage": {
-                            "types": {
-                                "Poison": 1
-                            }
-                        },
-                        "conditions": [
-                            {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "plantMetabolism": [
-            {
-                "class": "PlantAdjustNutrition",
-                "amount": 1
-            },
-            {
-                "class": "PlantAdjustHealth",
-                "amount": -0.5
-            },
-            {
-                "class": "PlantAdjustMutationMod",
-                "probability": 0.3,
-                "amount": 0.4
-            }
-        ],
-        "name": "left-4-zed",
-        "desc": "A cocktail of mutagenic compounds that gives nutrients, harms and affects plant life's genome.",
-        "physicalDesc": "heterogeneous",
-        "recipes": [
-            {
-                "type": "reaction",
-                "id": "Left4Zed",
-                "reactants": [
-                    [
-                        "EZ nutrient",
-                        1,
-                        false
-                    ],
-                    [
-                        "radium",
-                        1,
-                        true
-                    ]
-                ],
-                "products": [
-                    [
-                        "left-4-zed",
-                        1
                     ]
                 ]
             }
@@ -152,25 +189,183 @@
         "effects": [
             "'''Medicine''':",
             "\n",
-            "* Satiates hunger averagely when the metabolizing organ is a Plant organ",
+            "* Heals <span style=\"color:green\">1</span> Poison",
             "\n",
-            "* Deals <span style=\"color:red\">1</span> Poison when the metabolizing organ is a Plant organ",
+            "* Deals <span style=\"color:red\">2</span> Brute when there's at least 20u of dylovene",
+            "\n",
+            "* Causes jittering when there's at least 20u of dylovene",
+            "\n",
+            "* Has a 2% chance to cause vomiting when there's at least 20u of dylovene",
+            "\n",
+            "* Causes drunkness when there's at least 15u of dylovene",
             "\n",
             "'''Plants''':",
             "\n",
-            "* Adjusts nutrition level by <span style=\"color:green\">1</span>",
+            "* Adjusts toxins level by <span style=\"color:green\">-10</span>",
             "\n",
-            "* Adjusts health by <span style=\"color:red\">-0.5</span>",
-            "\n",
-            "* Has a 30% chance to adjust mutation modifier by <span style=\"color:green\">0.4</span>"
+            "* Adjusts health by <span style=\"color:green\">1</span>"
         ],
-        "effectLine": "'''Medicine''':\n* Satiates hunger averagely when the metabolizing organ is a Plant organ\n* Deals <span style=\"color:red\">1</span> Poison when the metabolizing organ is a Plant organ\n'''Plants''':\n* Adjusts nutrition level by <span style=\"color:green\">1</span>\n* Adjusts health by <span style=\"color:red\">-0.5</span>\n* Has a 30% chance to adjust mutation modifier by <span style=\"color:green\">0.4</span>"
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1</span> Poison\n* Deals <span style=\"color:red\">2</span> Brute when there's at least 20u of dylovene\n* Causes jittering when there's at least 20u of dylovene\n* Has a 2% chance to cause vomiting when there's at least 20u of dylovene\n* Causes drunkness when there's at least 15u of dylovene\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:green\">-10</span>\n* Adjusts health by <span style=\"color:green\">1</span>"
     },
     {
-        "id": "PestKiller",
-        "group": "Botanical",
-        "color": "#9e9886",
-        "flavor": "bitter",
+        "id": "Diphenhydramine",
+        "group": "Medicine",
+        "color": "#64ffe6",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "histamine",
+                        "amount": -3
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Jitter",
+                        "time": 3,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Poison": -3
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "diphenhydramine",
+        "desc": "Rapidly purges the body of histamine, reduces jitteriness, and treats poison damage.",
+        "physicalDesc": "chalky",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Diphenhydramine",
+                "impact": "Medium",
+                "minTemp": 377.59,
+                "reactants": [
+                    [
+                        "diethylamine",
+                        1,
+                        false
+                    ],
+                    [
+                        "oil",
+                        1,
+                        false
+                    ],
+                    [
+                        "table salt",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ],
+                    [
+                        "ethanol",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "diphenhydramine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Removes 3u of histamine from the solution",
+            "\n",
+            "* Removes 3s of jittering",
+            "\n",
+            "* Heals <span style=\"color:green\">3</span> Poison"
+        ],
+        "effectLine": "'''Medicine''':\n* Removes 3u of histamine from the solution\n* Removes 3s of jittering\n* Heals <span style=\"color:green\">3</span> Poison"
+    },
+    {
+        "id": "Ethylredoxrazine",
+        "group": "Medicine",
+        "color": "#2d5708",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Drunk",
+                        "time": 6,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Poison": -0.5
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "ethylredoxrazine",
+        "desc": "Neutralises the effects of alcohol in the blood stream. Though it is commonly needed, it is rarely requested.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Ethylredoxrazine",
+                "reactants": [
+                    [
+                        "oxygen",
+                        1,
+                        false
+                    ],
+                    [
+                        "dylovene",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "ethylredoxrazine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Removes 6s of drunkness",
+            "\n",
+            "* Heals <span style=\"color:green\">0.5</span> Poison"
+        ],
+        "effectLine": "'''Medicine''':\n* Removes 6s of drunkness\n* Heals <span style=\"color:green\">0.5</span> Poison"
+    },
+    {
+        "id": "Arithrazine",
+        "group": "Medicine",
+        "color": "#bd5902",
+        "textColorTheme": "light",
+        "flavor": "medicine",
         "metabolisms": {
             "Medicine": {
                 "effects": [
@@ -178,16 +373,178 @@
                         "class": "HealthChange",
                         "damage": {
                             "types": {
-                                "Poison": 3
+                                "Radiation": -3
+                            },
+                            "groups": {
+                                "Brute": 0.5
                             }
-                        },
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "arithrazine",
+        "desc": "A mildly unstable medication used for the most extreme case of radiation poisoning. Exerts minor stress on the body.",
+        "physicalDesc": "cloudy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Arithrazine",
+                "reactants": [
+                    [
+                        "hyronalin",
+                        1,
+                        false
+                    ],
+                    [
+                        "hydrogen",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "arithrazine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Modifies health by <span style=\"color:red\">0.5</span> Brute and <span style=\"color:green\">3</span> Radiation"
+        ],
+        "effectLine": "'''Medicine''':\n* Modifies health by <span style=\"color:red\">0.5</span> Brute and <span style=\"color:green\">3</span> Radiation"
+    },
+    {
+        "id": "Bicaridine",
+        "group": "Medicine",
+        "color": "#ffaa00",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "groups": {
+                                "Brute": -2
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
+                                "class": "ReagentThreshold",
+                                "min": 15,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": 0.5,
+                                "Poison": 1.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ],
+                        "probability": 0.02
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 15,
+                                "max": null
                             }
                         ]
+                    },
+                    {
+                        "class": "Drunk"
+                    }
+                ]
+            }
+        },
+        "name": "bicaridine",
+        "desc": "An analgesic which is highly effective at treating brute damage. It's useful for stabilizing people who have been severely beaten, as well as treating less life-threatening injuries.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Bicaridine",
+                "reactants": [
+                    [
+                        "inaprovaline",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "bicaridine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">2</span> Brute",
+            "\n",
+            "* Deals <span style=\"color:red\">0.5</span> Asphyxiation and <span style=\"color:red\">1.5</span> Poison when there's at least 15u of bicaridine",
+            "\n",
+            "* Has a 2% chance to cause vomiting when there's at least 30u of bicaridine",
+            "\n",
+            "* Causes jittering when there's at least 15u of bicaridine",
+            "\n",
+            "* Causes drunkness"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">2</span> Brute\n* Deals <span style=\"color:red\">0.5</span> Asphyxiation and <span style=\"color:red\">1.5</span> Poison when there's at least 15u of bicaridine\n* Has a 2% chance to cause vomiting when there's at least 30u of bicaridine\n* Causes jittering when there's at least 15u of bicaridine\n* Causes drunkness"
+    },
+    {
+        "id": "Cryoxadone",
+        "group": "Medicine",
+        "color": "#0091ff",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 213,
+                                "min": 0
+                            }
+                        ],
+                        "damage": {
+                            "groups": {
+                                "Airloss": -6,
+                                "Brute": -4,
+                                "Burn": -6,
+                                "Toxin": -4
+                            }
+                        }
                     }
                 ]
             }
@@ -195,35 +552,130 @@
         "plantMetabolism": [
             {
                 "class": "PlantAdjustToxins",
-                "amount": 4
+                "amount": -5
             },
             {
-                "class": "PlantAdjustPests",
-                "amount": -6
+                "class": "PlantAdjustHealth",
+                "amount": 5
+            },
+            {
+                "class": "PlantCryoxadone {}"
             }
         ],
-        "name": "pest killer",
-        "desc": "A mixture that targets pests. While useful it slowly poisons plants with toxins, be careful when using it.",
-        "physicalDesc": "bubbling",
-        "recipes": [],
+        "name": "cryoxadone",
+        "desc": "Required for the proper function of cryogenics. Heals all standard types of damage, but only works in temperatures under 213K. It can treat and rejuvenate plants when applied in small doses.",
+        "physicalDesc": "fizzy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Cryoxadone",
+                "reactants": [
+                    [
+                        "dexalin",
+                        1,
+                        false
+                    ],
+                    [
+                        "water",
+                        1,
+                        false
+                    ],
+                    [
+                        "oxygen",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "cryoxadone",
+                        3
+                    ]
+                ]
+            }
+        ],
         "effects": [
             "'''Medicine''':",
             "\n",
-            "* Deals <span style=\"color:red\">3</span> Poison when the metabolizing organ is a Plant organ",
+            "* Heals <span style=\"color:green\">6</span> Airloss, <span style=\"color:green\">4</span> Brute, <span style=\"color:green\">6</span> Burn, and <span style=\"color:green\">4</span> Toxin when the body's temperature is at most 213k",
             "\n",
             "'''Plants''':",
             "\n",
-            "* Adjusts toxins level by <span style=\"color:red\">4</span>",
+            "* Adjusts toxins level by <span style=\"color:green\">-5</span>",
             "\n",
-            "* Adjusts pests level by <span style=\"color:green\">-6</span>"
+            "* Adjusts health by <span style=\"color:green\">5</span>",
+            "\n",
+            "* Ages back the plant, depending on the plant's age and time to grow"
         ],
-        "effectLine": "'''Medicine''':\n* Deals <span style=\"color:red\">3</span> Poison when the metabolizing organ is a Plant organ\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:red\">4</span>\n* Adjusts pests level by <span style=\"color:green\">-6</span>"
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">6</span> Airloss, <span style=\"color:green\">4</span> Brute, <span style=\"color:green\">6</span> Burn, and <span style=\"color:green\">4</span> Toxin when the body's temperature is at most 213k\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:green\">-5</span>\n* Adjusts health by <span style=\"color:green\">5</span>\n* Ages back the plant, depending on the plant's age and time to grow"
     },
     {
-        "id": "PlantBGone",
-        "group": "Botanical",
-        "color": "#49002E",
-        "flavor": "bitter",
+        "id": "Doxarubixadone",
+        "group": "Medicine",
+        "color": "#32cd32",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 213,
+                                "min": 0
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Cellular": -2
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "doxarubixadone",
+        "desc": "A cryogenics chemical. Heals certain types of cellular damage done by Slimes and improper use of other chemicals.",
+        "physicalDesc": "bubbling",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Doxarubixadone",
+                "reactants": [
+                    [
+                        "cryoxadone",
+                        1,
+                        false
+                    ],
+                    [
+                        "unstable mutagen",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "doxarubixadone",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">2</span> Cellular when the body's temperature is at most 213k"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">2</span> Cellular when the body's temperature is at most 213k"
+    },
+    {
+        "id": "Dermaline",
+        "group": "Medicine",
+        "color": "#215263",
+        "textColorTheme": "light",
+        "flavor": "medicine",
         "metabolisms": {
             "Medicine": {
                 "effects": [
@@ -231,19 +683,932 @@
                         "class": "HealthChange",
                         "damage": {
                             "types": {
-                                "Poison": -4,
-                                "Blunt": 2,
-                                "Slash": 1,
-                                "Piercing": 1
+                                "Heat": -1.5,
+                                "Shock": -1.5,
+                                "Cold": -1.5
                             }
-                        },
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
+                                "class": "ReagentThreshold",
+                                "min": 10,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": 1,
+                                "Cold": 2
+                            },
+                            "groups": {
+                                "Brute": 0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 10,
+                                "max": null
                             }
                         ]
+                    }
+                ]
+            }
+        },
+        "name": "dermaline",
+        "desc": "An advanced chemical that is more effective at treating burn damage than kelotane.",
+        "physicalDesc": "translucent",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Dermaline",
+                "reactants": [
+                    [
+                        "kelotane",
+                        1,
+                        false
+                    ],
+                    [
+                        "oxygen",
+                        1,
+                        false
+                    ],
+                    [
+                        "phosphorus",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "dermaline",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">1.5</span> Heat, <span style=\"color:green\">1.5</span> Shock, and <span style=\"color:green\">1.5</span> Cold",
+            "\n",
+            "* Deals <span style=\"color:red\">0.5</span> Brute, <span style=\"color:red\">1</span> Asphyxiation, and <span style=\"color:red\">2</span> Cold when there's at least 10u of dermaline",
+            "\n",
+            "* Causes jittering when there's at least 10u of dermaline"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1.5</span> Heat, <span style=\"color:green\">1.5</span> Shock, and <span style=\"color:green\">1.5</span> Cold\n* Deals <span style=\"color:red\">0.5</span> Brute, <span style=\"color:red\">1</span> Asphyxiation, and <span style=\"color:red\">2</span> Cold when there's at least 10u of dermaline\n* Causes jittering when there's at least 10u of dermaline"
+    },
+    {
+        "id": "Dexalin",
+        "group": "Medicine",
+        "color": "#0041a8",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": -1,
+                                "Bloodloss": -0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": 3,
+                                "Cold": 1
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "dexalin",
+        "desc": "Used for treating minor oxygen deprivation and bloodloss. A required reagent for dexalin plus.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Dexalin",
+                "reactants": [
+                    [
+                        "oxygen",
+                        2,
+                        false
+                    ],
+                    [
+                        "plasma",
+                        1,
+                        true
+                    ]
+                ],
+                "products": [
+                    [
+                        "dexalin",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">1</span> Asphyxiation and <span style=\"color:green\">0.5</span> Bloodloss",
+            "\n",
+            "* Deals <span style=\"color:red\">3</span> Asphyxiation and <span style=\"color:red\">1</span> Cold when there's at least 20u of dexalin"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1</span> Asphyxiation and <span style=\"color:green\">0.5</span> Bloodloss\n* Deals <span style=\"color:red\">3</span> Asphyxiation and <span style=\"color:red\">1</span> Cold when there's at least 20u of dexalin"
+    },
+    {
+        "id": "DexalinPlus",
+        "group": "Medicine",
+        "color": "#4da0bd",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": -3.5,
+                                "Bloodloss": -3
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "HeartbreakerToxin",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "heartbreaker toxin",
+                        "amount": -3
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 25,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": 5,
+                                "Cold": 3
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "dexalin plus",
+        "desc": "Used in treatment of extreme cases of oxygen deprivation and bloodloss. Flushes heartbreaker toxin out of the blood stream.",
+        "physicalDesc": "cloudy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "DexalinPlus",
+                "reactants": [
+                    [
+                        "dexalin",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ],
+                    [
+                        "iron",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "dexalin plus",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3.5</span> Asphyxiation and <span style=\"color:green\">3</span> Bloodloss",
+            "\n",
+            "* Removes 3u of heartbreaker toxin from the solution when there's at least 1u of heartbreaker toxin",
+            "\n",
+            "* Deals <span style=\"color:red\">5</span> Asphyxiation and <span style=\"color:red\">3</span> Cold when there's at least 25u of dexalin plus"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3.5</span> Asphyxiation and <span style=\"color:green\">3</span> Bloodloss\n* Removes 3u of heartbreaker toxin from the solution when there's at least 1u of heartbreaker toxin\n* Deals <span style=\"color:red\">5</span> Asphyxiation and <span style=\"color:red\">3</span> Cold when there's at least 25u of dexalin plus"
+    },
+    {
+        "id": "Epinephrine",
+        "group": "Medicine",
+        "color": "#d2fffa",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "MobStateCondition",
+                                "mobstate": "Critical"
+                            },
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 0,
+                                "max": 20
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": -3,
+                                "Poison": -0.5
+                            },
+                            "groups": {
+                                "Brute": -0.5,
+                                "Burn": -0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": 1,
+                                "Poison": 1
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "heartbreaker toxin",
+                        "amount": -2
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "HeartbreakerToxin",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "epinephrine",
+                        "amount": -1
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "probability": 0.1,
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "HeartbreakerToxin",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "histamine",
+                        "amount": 4
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Stun",
+                        "time": 0.75,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "KnockedDown",
+                        "time": 0.75,
+                        "type": "Remove"
+                    }
+                ]
+            }
+        },
+        "name": "epinephrine",
+        "desc": "An effective stabilizing chemical used to keep a critical person from dying to asphyxiation while patching up minor damage during crit. Flushes heartbreaker toxin out the blood stream at the cost of more epinephrine, but may add histamine. Helps reduce stun time. Commonly found in the form of emergency medipens.",
+        "physicalDesc": "odorless",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Epinephrine",
+                "reactants": [
+                    [
+                        "phenol",
+                        1,
+                        false
+                    ],
+                    [
+                        "acetone",
+                        1,
+                        false
+                    ],
+                    [
+                        "chlorine",
+                        1,
+                        false
+                    ],
+                    [
+                        "hydroxide",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "epinephrine",
+                        4
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">0.5</span> Brute, <span style=\"color:green\">0.5</span> Burn, <span style=\"color:green\">3</span> Asphyxiation, and <span style=\"color:green\">0.5</span> Poison when the mob is critical and there's at most 20u of epinephrine",
+            "\n",
+            "* Deals <span style=\"color:red\">1</span> Asphyxiation and <span style=\"color:red\">1</span> Poison when there's at least 20u of epinephrine",
+            "\n",
+            "* Removes 2u of heartbreaker toxin from the solution",
+            "\n",
+            "* Removes 1u of epinephrine from the solution when there's at least 1u of heartbreaker toxin",
+            "\n",
+            "* Has a 10% chance to add 4u of histamine to the solution when there's at least 1u of heartbreaker toxin",
+            "\n",
+            "* Removes 0.75s of stunning",
+            "\n",
+            "* Removes 0.75s of knockdown"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">0.5</span> Brute, <span style=\"color:green\">0.5</span> Burn, <span style=\"color:green\">3</span> Asphyxiation, and <span style=\"color:green\">0.5</span> Poison when the mob is critical and there's at most 20u of epinephrine\n* Deals <span style=\"color:red\">1</span> Asphyxiation and <span style=\"color:red\">1</span> Poison when there's at least 20u of epinephrine\n* Removes 2u of heartbreaker toxin from the solution\n* Removes 1u of epinephrine from the solution when there's at least 1u of heartbreaker toxin\n* Has a 10% chance to add 4u of histamine to the solution when there's at least 1u of heartbreaker toxin\n* Removes 0.75s of stunning\n* Removes 0.75s of knockdown"
+    },
+    {
+        "id": "Hyronalin",
+        "group": "Medicine",
+        "color": "#4cb580",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Radiation": -1
+                            }
+                        }
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "probability": 0.02
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Heat": 2
+                            }
+                        }
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "name": "hyronalin",
+        "desc": "A weak treatment for radiation damage. A precursor to arithrazine and phalanximine. Can cause vomiting.",
+        "physicalDesc": "cloudy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Hyronalin",
+                "reactants": [
+                    [
+                        "radium",
+                        1,
+                        false
+                    ],
+                    [
+                        "dylovene",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "hyronalin",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">1</span> Radiation",
+            "\n",
+            "* Has a 2% chance to cause vomiting",
+            "\n",
+            "* Deals <span style=\"color:red\">2</span> Heat when there's at least 30u of hyronalin",
+            "\n",
+            "* Causes jittering when there's at least 30u of hyronalin"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1</span> Radiation\n* Has a 2% chance to cause vomiting\n* Deals <span style=\"color:red\">2</span> Heat when there's at least 30u of hyronalin\n* Causes jittering when there's at least 30u of hyronalin"
+    },
+    {
+        "id": "Ipecac",
+        "group": "Medicine",
+        "color": "#422912",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "ChemVomit",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 4,
+                                "max": null
+                            }
+                        ],
+                        "probability": 0.3
+                    }
+                ]
+            }
+        },
+        "name": "ipecac",
+        "desc": "A rapid-acting emetic. Useful for stopping unmetabolized poisons, or mass-vomiting sessions.",
+        "physicalDesc": "inky",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Ipecac",
+                "reactants": [
+                    [
+                        "potassium",
+                        1,
+                        false
+                    ],
+                    [
+                        "nitrogen",
+                        1,
+                        false
+                    ],
+                    [
+                        "ammonia",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "ipecac",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Has a 30% chance to cause vomiting when there's at least 4u of ipecac"
+        ],
+        "effectLine": "'''Medicine''':\n* Has a 30% chance to cause vomiting when there's at least 4u of ipecac"
+    },
+    {
+        "id": "Inaprovaline",
+        "group": "Medicine",
+        "color": "#731024",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "MobStateCondition",
+                                "mobstate": "Critical"
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Asphyxiation": -5
+                            }
+                        }
+                    },
+                    {
+                        "class": "ModifyBleedAmount",
+                        "amount": -0.25
+                    }
+                ]
+            }
+        },
+        "name": "inaprovaline",
+        "desc": "Inaprovaline is a synaptic stimulant and cardiostimulant, commonly used to treat asphyxiation damage caused during critical states and reduce bleeding. Used in many advanced medicines.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Inaprovaline",
+                "reactants": [
+                    [
+                        "oxygen",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "inaprovaline",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">5</span> Asphyxiation when the mob is critical",
+            "\n",
+            "* Reduces bleeding"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">5</span> Asphyxiation when the mob is critical\n* Reduces bleeding"
+    },
+    {
+        "id": "Kelotane",
+        "group": "Medicine",
+        "color": "#bf3d19",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Heat": -0.33,
+                                "Shock": -0.33,
+                                "Cold": -0.33
+                            }
+                        }
+                    },
+                    {
+                        "class": "SatiateThirst",
+                        "factor": -10,
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "type": "Local",
+                        "messages": [
+                            "generic-reagent-effect-nauseous",
+                            "generic-reagent-effect-thirsty",
+                            "generic-reagent-effect-parched"
+                        ],
+                        "probability": 0.1,
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 25
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "name": "kelotane",
+        "desc": "Treats burn damage. Overdosing greatly reduces the body's ability to retain water.",
+        "physicalDesc": "strong smelling",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Kelotane",
+                "reactants": [
+                    [
+                        "silicon",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "kelotane",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">0.33</span> Heat, <span style=\"color:green\">0.33</span> Shock, and <span style=\"color:green\">0.33</span> Cold",
+            "\n",
+            "* Satiates thirst at -3.333x the average rate when there's at least 30u of kelotane"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">0.33</span> Heat, <span style=\"color:green\">0.33</span> Shock, and <span style=\"color:green\">0.33</span> Cold\n* Satiates thirst at -3.333x the average rate when there's at least 30u of kelotane"
+    },
+    {
+        "id": "Leporazine",
+        "group": "Medicine",
+        "color": "#ff7db5",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Cold": -4
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustTemperature",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 293.15,
+                                "min": 0
+                            }
+                        ],
+                        "amount": 100000
+                    },
+                    {
+                        "class": "AdjustTemperature",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "min": 293.15,
+                                "max": null
+                            }
+                        ],
+                        "amount": -10000
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "type": "Local",
+                        "visualType": "Medium",
+                        "messages": [
+                            "leporazine-effect-temperature-adjusting"
+                        ],
+                        "probability": 0.2
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "Fresium",
+                        "amount": -5
+                    }
+                ]
+            }
+        },
+        "name": "leporazine",
+        "desc": "A chemical used to stabilize body temperature and rapidly cure cold damage. Great for unprotected EVA travel, but prevents the use of cryogenic tubes.",
+        "physicalDesc": "pungent",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Leporazine",
+                "reactants": [
+                    [
+                        "copper",
+                        1,
+                        false
+                    ],
+                    [
+                        "fersilicite",
+                        1,
+                        false
+                    ],
+                    [
+                        "plasma",
+                        1,
+                        true
+                    ]
+                ],
+                "products": [
+                    [
+                        "leporazine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">4</span> Cold",
+            "\n",
+            "* Adds 100kJ of heat to the body it's in when the body's temperature is at most 293.15k",
+            "\n",
+            "* Removes 10kJ of heat from the body it's in when the body's temperature is at least 293.15k",
+            "\n",
+            "* Removes 5u of Fresium from the solution"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">4</span> Cold\n* Adds 100kJ of heat to the body it's in when the body's temperature is at most 293.15k\n* Removes 10kJ of heat from the body it's in when the body's temperature is at least 293.15k\n* Removes 5u of Fresium from the solution"
+    },
+    {
+        "id": "Barozine",
+        "group": "Medicine",
+        "color": "#ff867d",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "probability": 0.3,
+                        "damage": {
+                            "types": {
+                                "Heat": 0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Poison": 3
+                            }
+                        }
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "probability": 0.15,
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "PressureImmunity",
+                        "component": "PressureImmunity",
+                        "time": 2
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Stutter",
+                        "component": "StutteringAccent",
+                        "time": 2
+                    },
+                    {
+                        "class": "Jitter"
+                    },
+                    {
+                        "class": "Emote",
+                        "emote": "Scream",
+                        "probability": 0.2
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "type": "Local",
+                        "visualType": "Large",
+                        "messages": [
+                            "barozine-effect-skin-burning",
+                            "barozine-effect-muscle-contract"
+                        ],
+                        "probability": 0.1
+                    }
+                ]
+            }
+        },
+        "name": "barozine",
+        "desc": "A potent chemical that prevents pressure damage. Causes extreme stress on the body.",
+        "physicalDesc": "viscous",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Has a 30% chance to deal <span style=\"color:red\">0.5</span> Heat",
+            "\n",
+            "* Deals <span style=\"color:red\">3</span> Poison when there's at least 30u of barozine",
+            "\n",
+            "* Has a 15% chance to cause vomiting when there's at least 30u of barozine",
+            "\n",
+            "* Causes pressure immunity for at least 0.2s without accumulation",
+            "\n",
+            "* Causes stuttering for at least 0.2s without accumulation",
+            "\n",
+            "* Causes jittering"
+        ],
+        "effectLine": "'''Medicine''':\n* Has a 30% chance to deal <span style=\"color:red\">0.5</span> Heat\n* Deals <span style=\"color:red\">3</span> Poison when there's at least 30u of barozine\n* Has a 15% chance to cause vomiting when there's at least 30u of barozine\n* Causes pressure immunity for at least 0.2s without accumulation\n* Causes stuttering for at least 0.2s without accumulation\n* Causes jittering"
+    },
+    {
+        "id": "Phalanximine",
+        "group": "Medicine",
+        "color": "#c8ff75",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Cellular": -1,
+                                "Radiation": 1
+                            }
+                        }
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "probability": 0.05
                     }
                 ]
             }
@@ -254,41 +1619,44 @@
                 "amount": 6
             },
             {
-                "class": "PlantAdjustWeeds",
-                "amount": -8
-            },
-            {
-                "class": "PlantAdjustHealth",
-                "amount": -20
-            },
-            {
-                "class": "PlantAdjustMutationMod",
-                "amount": 0.1
+                "class": "PlantPhalanximine",
+                "conditions": [
+                    {
+                        "class": "ReagentThreshold",
+                        "min": 4,
+                        "max": null
+                    }
+                ]
             }
         ],
-        "name": "plant-B-gone",
-        "desc": "A harmful toxic mixture to kill plantlife. Very effective against kudzu.",
-        "physicalDesc": "bubbling",
+        "name": "phalanximine",
+        "desc": "An advanced chemical used in the treatment of cancer. Causes moderate radiation poisoning on organics and vomiting. Can potentially remove the death gene on plants.",
+        "physicalDesc": "acrid",
         "recipes": [
             {
                 "type": "reaction",
-                "id": "PlantBGone",
+                "id": "Phalanximine",
                 "reactants": [
                     [
-                        "toxin",
+                        "hyronalin",
                         1,
                         false
                     ],
                     [
-                        "water",
-                        4,
+                        "ethanol",
+                        1,
+                        false
+                    ],
+                    [
+                        "unstable mutagen",
+                        1,
                         false
                     ]
                 ],
                 "products": [
                     [
-                        "plant-B-gone",
-                        5
+                        "phalanximine",
+                        3
                     ]
                 ]
             }
@@ -296,54 +1664,41 @@
         "effects": [
             "'''Medicine''':",
             "\n",
-            "* Modifies health by <span style=\"color:green\">4</span> Poison, <span style=\"color:red\">2</span> Blunt, <span style=\"color:red\">1</span> Slash, and <span style=\"color:red\">1</span> Piercing when the metabolizing organ is a Plant organ",
+            "* Modifies health by <span style=\"color:green\">1</span> Cellular and <span style=\"color:red\">1</span> Radiation",
+            "\n",
+            "* Has a 5% chance to cause vomiting",
             "\n",
             "'''Plants''':",
             "\n",
             "* Adjusts toxins level by <span style=\"color:red\">6</span>",
             "\n",
-            "* Adjusts weeds level by <span style=\"color:green\">-8</span>",
-            "\n",
-            "* Adjusts health by <span style=\"color:red\">-20</span>",
-            "\n",
-            "* Adjusts mutation modifier by <span style=\"color:green\">0.1</span>"
+            "* Restores viability to a plant rendered nonviable by a mutation when there's at least 4u of phalanximine"
         ],
-        "effectLine": "'''Medicine''':\n* Modifies health by <span style=\"color:green\">4</span> Poison, <span style=\"color:red\">2</span> Blunt, <span style=\"color:red\">1</span> Slash, and <span style=\"color:red\">1</span> Piercing when the metabolizing organ is a Plant organ\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:red\">6</span>\n* Adjusts weeds level by <span style=\"color:green\">-8</span>\n* Adjusts health by <span style=\"color:red\">-20</span>\n* Adjusts mutation modifier by <span style=\"color:green\">0.1</span>"
+        "effectLine": "'''Medicine''':\n* Modifies health by <span style=\"color:green\">1</span> Cellular and <span style=\"color:red\">1</span> Radiation\n* Has a 5% chance to cause vomiting\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:red\">6</span>\n* Restores viability to a plant rendered nonviable by a mutation when there's at least 4u of phalanximine"
     },
     {
-        "id": "RobustHarvest",
-        "group": "Botanical",
-        "color": "#3e901c",
-        "flavor": "bitter",
+        "id": "PolypyryliumOligomers",
+        "group": "Medicine",
+        "color": "#9423FF",
+        "textColorTheme": "light",
+        "flavor": "violets",
         "metabolisms": {
-            "Poison": {
+            "Medicine": {
                 "effects": [
                     {
                         "class": "HealthChange",
                         "damage": {
+                            "groups": {
+                                "Brute": -3.5
+                            },
                             "types": {
-                                "Poison": -2,
-                                "Blunt": -3,
-                                "Slash": -3,
-                                "Piercing": -3
+                                "Asphyxiation": -2.5
                             }
-                        },
-                        "conditions": [
-                            {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
-                            }
-                        ]
+                        }
                     },
                     {
                         "class": "HealthChange",
                         "conditions": [
-                            {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
-                            },
                             {
                                 "class": "ReagentThreshold",
                                 "min": 30,
@@ -352,28 +1707,47 @@
                         ],
                         "damage": {
                             "types": {
-                                "Asphyxiation": 1,
-                                "Heat": 2,
-                                "Poison": 1
+                                "Asphyxiation": 3.5
                             }
                         }
+                    },
+                    {
+                        "class": "ModifyBleedAmount",
+                        "amount": -0.25
                     }
                 ]
-            },
+            }
+        },
+        "name": "Polypyrylium Oligomers",
+        "desc": "A purple mixture of short polyelectrolyte chains not easily synthesized in the laboratory. Heals asphyxiation and brute damage. Stops bleeding over time.",
+        "physicalDesc": "pungent",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3.5</span> Brute and <span style=\"color:green\">2.5</span> Asphyxiation",
+            "\n",
+            "* Deals <span style=\"color:red\">3.5</span> Asphyxiation when there's at least 30u of Polypyrylium Oligomers",
+            "\n",
+            "* Reduces bleeding"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3.5</span> Brute and <span style=\"color:green\">2.5</span> Asphyxiation\n* Deals <span style=\"color:red\">3.5</span> Asphyxiation when there's at least 30u of Polypyrylium Oligomers\n* Reduces bleeding"
+    },
+    {
+        "id": "Ambuzol",
+        "group": "Medicine",
+        "color": "#86caf7",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
             "Medicine": {
                 "effects": [
                     {
-                        "class": "Polymorph",
-                        "prototype": "TreeMorph",
+                        "class": "CureZombieInfection",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
-                            },
-                            {
                                 "class": "ReagentThreshold",
-                                "min": 80,
+                                "min": 10,
                                 "max": null
                             }
                         ]
@@ -381,145 +1755,291 @@
                 ]
             }
         },
-        "plantMetabolism": [
-            {
-                "class": "PlantAdjustNutrition",
-                "amount": 0.05
-            },
-            {
-                "class": "PlantAdjustWeeds",
-                "probability": 0.025,
-                "amount": 1
-            },
-            {
-                "class": "PlantAdjustPests",
-                "probability": 0.025,
-                "amount": 1
-            },
-            {
-                "class": "RobustHarvest {}",
-                "potencyLimit": 50,
-                "potencyIncrease": 3,
-                "potencySeedlessThreshold": 30
-            }
-        ],
-        "name": "robust harvest",
-        "desc": "A highly effective fertilizer with a limited potency-boosting effect on plants. Use it cautiously, as excessive application can reduce plant yield. It has a particularly beneficial effect on dionas.",
-        "physicalDesc": "robust",
+        "name": "ambuzol",
+        "desc": "A highly engineered substance able to halt the progression of a zombie infection.",
+        "physicalDesc": "crisp",
         "recipes": [
             {
                 "type": "reaction",
-                "id": "RobustHarvest",
+                "id": "Ambuzol",
                 "reactants": [
                     [
-                        "EZ nutrient",
+                        "dylovene",
                         1,
                         false
                     ],
                     [
-                        "sulfuric acid",
+                        "ammonia",
                         1,
-                        true
+                        false
+                    ],
+                    [
+                        "zombie blood",
+                        2,
+                        false
                     ]
                 ],
                 "products": [
                     [
-                        "robust harvest",
-                        1
+                        "ambuzol",
+                        4
                     ]
                 ]
             }
         ],
         "effects": [
-            "'''Poison''':",
-            "\n",
-            "* Heals <span style=\"color:green\">2</span> Poison, <span style=\"color:green\">3</span> Blunt, <span style=\"color:green\">3</span> Slash, and <span style=\"color:green\">3</span> Piercing when the metabolizing organ is a Plant organ",
-            "\n",
-            "* Deals <span style=\"color:red\">1</span> Asphyxiation, <span style=\"color:red\">2</span> Heat, and <span style=\"color:red\">1</span> Poison when the metabolizing organ is a Plant organ and there's at least 30u of robust harvest",
-            "\n",
             "'''Medicine''':",
             "\n",
-            "* Polymorphsthe metabolizer into a tree when the metabolizing organ is a Plant organ and there's at least 80u of robust harvest",
-            "\n",
-            "'''Plants''':",
-            "\n",
-            "* Adjusts nutrition level by <span style=\"color:green\">0.05</span>",
-            "\n",
-            "* Has a 2% chance to adjust weeds level by <span style=\"color:red\">1</span>",
-            "\n",
-            "* Has a 2% chance to adjust pests level by <span style=\"color:red\">1</span>",
-            "\n",
-            "* Increases the plant's potency by 3 up to a maximum of 50. Causes the plant to lose its seeds once the potency reaches 30. Trying to add potency over 50 may cause a decrease in yield at a 10% chance"
+            "* Cures an ongoing zombie infection when there's at least 10u of ambuzol"
         ],
-        "effectLine": "'''Poison''':\n* Heals <span style=\"color:green\">2</span> Poison, <span style=\"color:green\">3</span> Blunt, <span style=\"color:green\">3</span> Slash, and <span style=\"color:green\">3</span> Piercing when the metabolizing organ is a Plant organ\n* Deals <span style=\"color:red\">1</span> Asphyxiation, <span style=\"color:red\">2</span> Heat, and <span style=\"color:red\">1</span> Poison when the metabolizing organ is a Plant organ and there's at least 30u of robust harvest\n'''Medicine''':\n* Polymorphsthe metabolizer into a tree when the metabolizing organ is a Plant organ and there's at least 80u of robust harvest\n'''Plants''':\n* Adjusts nutrition level by <span style=\"color:green\">0.05</span>\n* Has a 2% chance to adjust weeds level by <span style=\"color:red\">1</span>\n* Has a 2% chance to adjust pests level by <span style=\"color:red\">1</span>\n* Increases the plant's potency by 3 up to a maximum of 50. Causes the plant to lose its seeds once the potency reaches 30. Trying to add potency over 50 may cause a decrease in yield at a 10% chance"
+        "effectLine": "'''Medicine''':\n* Cures an ongoing zombie infection when there's at least 10u of ambuzol"
     },
     {
-        "id": "Sedin",
-        "group": "Botanical",
-        "color": "#3CB371",
-        "flavor": "bitter",
-        "plantMetabolism": [
-            {
-                "class": "PlantAdjustHealth",
-                "amount": -2
-            },
-            {
-                "class": "PlantRestoreSeeds",
-                "probability": 0.2
-            },
-            {
-                "class": "PlantAdjustPotency",
-                "amount": -3
+        "id": "AmbuzolPlus",
+        "group": "Medicine",
+        "color": "#1274b5",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "CureZombieInfection",
+                        "innoculate": true,
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 5,
+                                "max": null
+                            }
+                        ]
+                    }
+                ]
             }
-        ],
-        "name": "sedin",
-        "desc": "A modified version of diethylamine that can restore seeds on plants at the cost of potency.",
-        "physicalDesc": "sickly",
+        },
+        "name": "ambuzol plus",
+        "desc": "Further engineered with the blood of the infected, inoculates the living against the infection.",
+        "physicalDesc": "crisp",
         "recipes": [
             {
                 "type": "reaction",
-                "id": "Sedin",
+                "id": "AmbuzolPlus",
                 "reactants": [
                     [
-                        "cryoxadone",
-                        1,
+                        "ambuzol",
+                        5,
                         false
                     ],
                     [
-                        "robust harvest",
-                        3,
-                        false
-                    ],
-                    [
-                        "diethylamine",
-                        3,
+                        "omnizine",
+                        5,
                         false
                     ]
                 ],
                 "products": [
                     [
-                        "sedin",
-                        1
+                        "ambuzol plus",
+                        10
                     ]
                 ]
             }
         ],
         "effects": [
-            "'''Plants''':",
+            "'''Medicine''':",
             "\n",
-            "* Adjusts health by <span style=\"color:red\">-2</span>",
-            "\n",
-            "* Has a 20% chance to restore the seeds of the plant",
-            "\n",
-            "* Adjusts potency by <span style=\"color:red\">-3</span>"
+            "* Cures an ongoing zombie infection, and provides immunity to future infections when there's at least 5u of ambuzol plus"
         ],
-        "effectLine": "'''Plants''':\n* Adjusts health by <span style=\"color:red\">-2</span>\n* Has a 20% chance to restore the seeds of the plant\n* Adjusts potency by <span style=\"color:red\">-3</span>"
+        "effectLine": "'''Medicine''':\n* Cures an ongoing zombie infection, and provides immunity to future infections when there's at least 5u of ambuzol plus"
     },
     {
-        "id": "WeedKiller",
-        "group": "Botanical",
-        "color": "#968395",
-        "flavor": "bitter",
+        "id": "PulpedBananaPeel",
+        "group": "Medicine",
+        "color": "#FFE774",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "ModifyBleedAmount",
+                        "amount": -0.5
+                    }
+                ]
+            }
+        },
+        "name": "pulped banana peel",
+        "desc": "Pulped banana peels have some effectiveness against bleeding.",
+        "physicalDesc": "pulpy",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Reduces bleeding"
+        ],
+        "effectLine": "'''Medicine''':\n* Reduces bleeding"
+    },
+    {
+        "id": "Saline",
+        "group": "Medicine",
+        "color": "#0064C8",
+        "textColorTheme": "light",
+        "flavor": "salty",
+        "metabolisms": {
+            "Drink": {
+                "effects": [
+                    {
+                        "class": "SatiateThirst",
+                        "factor": 6
+                    },
+                    {
+                        "class": "ModifyBloodLevel",
+                        "amount": 6
+                    }
+                ]
+            }
+        },
+        "name": "saline",
+        "desc": "A mixture of salt and water. Commonly used to treat dehydration or low fluid presence in blood.",
+        "physicalDesc": "salty",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Saline",
+                "reactants": [
+                    [
+                        "water",
+                        4,
+                        false
+                    ],
+                    [
+                        "table salt",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "saline",
+                        5
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Drink''':",
+            "\n",
+            "* Satiates thirst at 2x the average rate",
+            "\n",
+            "* Increases blood level"
+        ],
+        "effectLine": "'''Drink''':\n* Satiates thirst at 2x the average rate\n* Increases blood level"
+    },
+    {
+        "id": "Siderlac",
+        "group": "Medicine",
+        "color": "#f4dab8",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Caustic": -5
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "siderlac",
+        "desc": "A powerful anti-caustic medicine derived from plants.",
+        "physicalDesc": "milky",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Siderlac",
+                "reactants": [
+                    [
+                        "aloe",
+                        1,
+                        false
+                    ],
+                    [
+                        "stellibinin",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "siderlac",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">5</span> Caustic"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">5</span> Caustic"
+    },
+    {
+        "id": "Stellibinin",
+        "group": "Medicine",
+        "color": "#2b2f77",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Poison": -4
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "Amatoxin",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "amatoxin",
+                        "amount": -3
+                    }
+                ]
+            }
+        },
+        "name": "stellibinin",
+        "desc": "A natual anti-toxin with particular effectiveness against amatoxin.",
+        "physicalDesc": "starry",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">4</span> Poison",
+            "\n",
+            "* Removes 3u of amatoxin from the solution when there's at least 1u of amatoxin"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">4</span> Poison\n* Removes 3u of amatoxin from the solution when there's at least 1u of amatoxin"
+    },
+    {
+        "id": "Synaptizine",
+        "group": "Medicine",
+        "color": "#d49a2f",
+        "textColorTheme": "light",
+        "flavor": "medicine",
         "metabolisms": {
             "Poison": {
                 "effects": [
@@ -527,16 +2047,1382 @@
                         "class": "HealthChange",
                         "damage": {
                             "types": {
-                                "Poison": 4
+                                "Poison": 2
                             }
-                        },
+                        }
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Stun",
+                        "time": 3,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "KnockedDown",
+                        "time": 3,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "SeeingRainbows",
+                        "time": 15,
+                        "type": "Remove"
+                    }
+                ]
+            }
+        },
+        "name": "synaptizine",
+        "desc": "A toxic chemical that halves the duration of stuns and knockdowns.",
+        "physicalDesc": "pungent",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Synaptizine",
+                "reactants": [
+                    [
+                        "lithium",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ],
+                    [
+                        "water",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "synaptizine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Poison''':",
+            "\n",
+            "* Deals <span style=\"color:red\">2</span> Poison",
+            "\n",
+            "* Removes 3s of stunning",
+            "\n",
+            "* Removes 3s of knockdown",
+            "\n",
+            "* Removes 15s of hallucinations"
+        ],
+        "effectLine": "'''Poison''':\n* Deals <span style=\"color:red\">2</span> Poison\n* Removes 3s of stunning\n* Removes 3s of knockdown\n* Removes 15s of hallucinations"
+    },
+    {
+        "id": "TranexamicAcid",
+        "group": "Medicine",
+        "color": "#ba7d7d",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "ModifyBleedAmount",
+                        "amount": -1.5
+                    },
+                    {
+                        "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Plant",
-                                "shouldHave": true
+                                "class": "ReagentThreshold",
+                                "min": 15,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Bloodloss": 3
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "tranexamic acid",
+        "desc": "A blood-clotting medicine used to prevent profuse bleeding. Causes heavier bleeding on overdose. Commonly found in small doses within emergency medipens.",
+        "physicalDesc": "viscous",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "TranexamicAcid",
+                "reactants": [
+                    [
+                        "inaprovaline",
+                        1,
+                        false
+                    ],
+                    [
+                        "sulfuric acid",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "tranexamic acid",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Reduces bleeding",
+            "\n",
+            "* Deals <span style=\"color:red\">3</span> Bloodloss when there's at least 15u of tranexamic acid"
+        ],
+        "effectLine": "'''Medicine''':\n* Reduces bleeding\n* Deals <span style=\"color:red\">3</span> Bloodloss when there's at least 15u of tranexamic acid"
+    },
+    {
+        "id": "Tricordrazine",
+        "group": "Medicine",
+        "color": "#00e5ff",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "TotalDamage",
+                                "max": 50,
+                                "min": 0
+                            }
+                        ],
+                        "damage": {
+                            "groups": {
+                                "Brute": -1
+                            },
+                            "types": {
+                                "Poison": -0.5,
+                                "Heat": -0.33,
+                                "Shock": -0.33,
+                                "Cold": -0.33
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "tricordrazine",
+        "desc": "A wide-spectrum stimulant, originally derived from cordrazine. Treats minor damage of all basic health types as long as the user is not heavily wounded. Best used as an additive to other chemicals.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Tricordrazine",
+                "reactants": [
+                    [
+                        "inaprovaline",
+                        1,
+                        false
+                    ],
+                    [
+                        "dylovene",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "tricordrazine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">1</span> Brute, <span style=\"color:green\">0.5</span> Poison, <span style=\"color:green\">0.33</span> Heat, <span style=\"color:green\">0.33</span> Shock, and <span style=\"color:green\">0.33</span> Cold when it has at most 50 total damage"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1</span> Brute, <span style=\"color:green\">0.5</span> Poison, <span style=\"color:green\">0.33</span> Heat, <span style=\"color:green\">0.33</span> Shock, and <span style=\"color:green\">0.33</span> Cold when it has at most 50 total damage"
+    },
+    {
+        "id": "Lipozine",
+        "group": "Medicine",
+        "color": "#2690b5",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "SatiateHunger",
+                        "factor": -1
+                    }
+                ]
+            }
+        },
+        "name": "lipozine",
+        "desc": "A chemical that accelerates metabolism, causing the user to hunger faster.",
+        "physicalDesc": "oily",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Lipozine",
+                "reactants": [
+                    [
+                        "table salt",
+                        1,
+                        false
+                    ],
+                    [
+                        "ethanol",
+                        1,
+                        false
+                    ],
+                    [
+                        "radium",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "lipozine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Satiates hunger at -0.333x the average rate"
+        ],
+        "effectLine": "'''Medicine''':\n* Satiates hunger at -0.333x the average rate"
+    },
+    {
+        "id": "Omnizine",
+        "group": "Medicine",
+        "color": "#fcf7f9",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "groups": {
+                                "Burn": -2,
+                                "Toxin": -2,
+                                "Airloss": -2,
+                                "Brute": -2
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "omnizine",
+        "desc": "A soothing milky liquid with an iridescent gleam. A well known conspiracy theory says that its origins remain a mystery because revealing the secrets of its production would render most commercial pharmaceuticals obsolete.",
+        "physicalDesc": "soothing",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">2</span> Burn, <span style=\"color:green\">2</span> Toxin, <span style=\"color:green\">2</span> Airloss, and <span style=\"color:green\">2</span> Brute"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">2</span> Burn, <span style=\"color:green\">2</span> Toxin, <span style=\"color:green\">2</span> Airloss, and <span style=\"color:green\">2</span> Brute"
+    },
+    {
+        "id": "Ultravasculine",
+        "group": "Medicine",
+        "color": "#520e30",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 0,
+                                "max": 30
+                            }
+                        ],
+                        "damage": {
+                            "groups": {
+                                "Toxin": -3,
+                                "Brute": 0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "groups": {
+                                "Toxin": -1,
+                                "Brute": 3
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "Histamine",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "histamine",
+                        "amount": -1
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "reagent": "Histamine",
+                                "min": 1,
+                                "max": null
+                            }
+                        ],
+                        "reagent": "ultravasculine",
+                        "amount": 0.5
+                    }
+                ]
+            }
+        },
+        "name": "ultravasculine",
+        "desc": "A complicated anti-toxin solution that quickly flushes out toxin while causing minor stress on the body. Reacts with histamine, duplicating itself while flushing it out. Overdose causes extreme pain.",
+        "physicalDesc": "thick and grainy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Ultravasculine",
+                "reactants": [
+                    [
+                        "histamine",
+                        2,
+                        false
+                    ],
+                    [
+                        "plasma",
+                        1,
+                        true
+                    ]
+                ],
+                "products": [
+                    [
+                        "ultravasculine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Modifies health by <span style=\"color:green\">3</span> Toxin and <span style=\"color:red\">0.5</span> Brute when there's at most 30u of ultravasculine",
+            "\n",
+            "* Modifies health by <span style=\"color:green\">1</span> Toxin and <span style=\"color:red\">3</span> Brute when there's at least 30u of ultravasculine",
+            "\n",
+            "* Removes 1u of histamine from the solution when there's at least 1u of histamine",
+            "\n",
+            "* Adds 0.5u of ultravasculine to the solution when there's at least 1u of histamine"
+        ],
+        "effectLine": "'''Medicine''':\n* Modifies health by <span style=\"color:green\">3</span> Toxin and <span style=\"color:red\">0.5</span> Brute when there's at most 30u of ultravasculine\n* Modifies health by <span style=\"color:green\">1</span> Toxin and <span style=\"color:red\">3</span> Brute when there's at least 30u of ultravasculine\n* Removes 1u of histamine from the solution when there's at least 1u of histamine\n* Adds 0.5u of ultravasculine to the solution when there's at least 1u of histamine"
+    },
+    {
+        "id": "Oculine",
+        "group": "Medicine",
+        "color": "#404040",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "ChemHealEyeDamage",
+                        "amount": -1
+                    }
+                ]
+            }
+        },
+        "name": "oculine",
+        "desc": "A simple saline compound used to treat the eyes via ingestion.",
+        "physicalDesc": "translucent",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Oculine",
+                "reactants": [
+                    [
+                        "table salt",
+                        1,
+                        false
+                    ],
+                    [
+                        "blood",
+                        1,
+                        false
+                    ],
+                    [
+                        "hydroxide",
+                        2,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "oculine",
+                        4
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals eye damage"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals eye damage"
+    },
+    {
+        "id": "Cognizine",
+        "group": "Medicine",
+        "color": "#b50ee8",
+        "textColorTheme": "light",
+        "flavor": "magical",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "MakeSentient",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 5,
+                                "max": null
                             }
                         ]
+                    }
+                ]
+            }
+        },
+        "name": "cognizine",
+        "desc": "A mysterious chemical which is able to make any non-sentient creature sentient.",
+        "physicalDesc": "enigmatic",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Cognizine",
+                "reactants": [
+                    [
+                        "carpotoxin",
+                        1,
+                        false
+                    ],
+                    [
+                        "siderlac",
+                        1,
+                        false
+                    ],
+                    [
+                        "acetone",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "cognizine",
+                        1
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Makes the metabolizer sentient when there's at least 5u of cognizine"
+        ],
+        "effectLine": "'''Medicine''':\n* Makes the metabolizer sentient when there's at least 5u of cognizine"
+    },
+    {
+        "id": "Ethyloxyephedrine",
+        "group": "Medicine",
+        "color": "#d5d5e4",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "Jitter"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Stutter",
+                        "component": "StutteringAccent",
+                        "time": 2
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Drowsiness",
+                        "time": 10,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "ResetNarcolepsy",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 10,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "visualType": "Medium",
+                        "messages": [
+                            "ethyloxyephedrine-effect-feeling-awake",
+                            "ethyloxyephedrine-effect-clear-mind"
+                        ],
+                        "type": "Local",
+                        "probability": 0.1
+                    }
+                ]
+            }
+        },
+        "name": "ethyloxyephedrine",
+        "desc": "A mildly unstable medicine derived from desoxyephedrine, primarily used to combat narcolepsy.",
+        "physicalDesc": "shiny",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Causes jittering",
+            "\n",
+            "* Causes stuttering for at least 0.2s without accumulation",
+            "\n",
+            "* Removes 10s of drowsiness",
+            "\n",
+            "* Temporarily staves off narcolepsy when there's at least 10u of ethyloxyephedrine"
+        ],
+        "effectLine": "'''Medicine''':\n* Causes jittering\n* Causes stuttering for at least 0.2s without accumulation\n* Removes 10s of drowsiness\n* Temporarily staves off narcolepsy when there's at least 10u of ethyloxyephedrine"
+    },
+    {
+        "id": "Diphenylmethylamine",
+        "group": "Medicine",
+        "color": "#b0abaa",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Drowsiness",
+                        "time": 10,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "ResetNarcolepsy",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 5,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "visualType": "Medium",
+                        "messages": [
+                            "ethyloxyephedrine-effect-feeling-awake",
+                            "ethyloxyephedrine-effect-clear-mind"
+                        ],
+                        "type": "Local",
+                        "probability": 0.1
+                    }
+                ]
+            }
+        },
+        "name": "diphenylmethylamine",
+        "desc": "A more stable medicine than ethyloxyephedrine. Useful for keeping someone awake.",
+        "physicalDesc": "glowing",
+        "recipes": [],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Removes 10s of drowsiness",
+            "\n",
+            "* Temporarily staves off narcolepsy when there's at least 5u of diphenylmethylamine"
+        ],
+        "effectLine": "'''Medicine''':\n* Removes 10s of drowsiness\n* Temporarily staves off narcolepsy when there's at least 5u of diphenylmethylamine"
+    },
+    {
+        "id": "Sigynate",
+        "group": "Medicine",
+        "color": "#e0a5b9",
+        "textColorTheme": "light",
+        "flavor": "sweet",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Caustic": -3
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 16,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Heat": 2
+                            }
+                        }
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ]
+                    },
+                    {
+                        "class": "PopupMessage",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20
+                            }
+                        ],
+                        "type": "Local",
+                        "visualType": "Medium",
+                        "messages": [
+                            "generic-reagent-effect-nauseous"
+                        ],
+                        "probability": 0.2
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 30,
+                                "max": null
+                            }
+                        ],
+                        "probability": 0.02
+                    }
+                ]
+            }
+        },
+        "name": "sigynate",
+        "desc": "A thick pink syrup useful for neutralizing acids and soothing trauma caused by acids. Tastes sweet!",
+        "physicalDesc": "thick",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Sigynate",
+                "impact": "Medium",
+                "minTemp": 370,
+                "reactants": [
+                    [
+                        "sodium carbonate",
+                        1,
+                        false
+                    ],
+                    [
+                        "sodium hydroxide",
+                        1,
+                        false
+                    ],
+                    [
+                        "kelotane",
+                        1,
+                        false
+                    ],
+                    [
+                        "water",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "sigynate",
+                        4
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3</span> Caustic",
+            "\n",
+            "* Deals <span style=\"color:red\">2</span> Heat when there's at least 16u of sigynate",
+            "\n",
+            "* Causes jittering when there's at least 20u of sigynate",
+            "\n",
+            "* Has a 2% chance to cause vomiting when there's at least 30u of sigynate"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3</span> Caustic\n* Deals <span style=\"color:red\">2</span> Heat when there's at least 16u of sigynate\n* Causes jittering when there's at least 20u of sigynate\n* Has a 2% chance to cause vomiting when there's at least 30u of sigynate"
+    },
+    {
+        "id": "Lacerinol",
+        "group": "Medicine",
+        "color": "#283332",
+        "textColorTheme": "light",
+        "flavor": "syrupy",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Slash": -3
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 12,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Cold": 3
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "lacerinol",
+        "desc": "A fairly unreactive chemical that boosts collagen sythesis to incredible levels, healing slash trauma.",
+        "physicalDesc": "viscous",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Lacerinol",
+                "impact": "Medium",
+                "minTemp": 335,
+                "reactants": [
+                    [
+                        "bicaridine",
+                        1,
+                        false
+                    ],
+                    [
+                        "benzene",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "lacerinol",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3</span> Slash",
+            "\n",
+            "* Deals <span style=\"color:red\">3</span> Cold when there's at least 12u of lacerinol"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3</span> Slash\n* Deals <span style=\"color:red\">3</span> Cold when there's at least 12u of lacerinol"
+    },
+    {
+        "id": "Puncturase",
+        "group": "Medicine",
+        "color": "#b9bf93",
+        "textColorTheme": "light",
+        "flavor": "fizzy",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Piercing": -4,
+                                "Blunt": 0.1
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 11,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Blunt": 5
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "puncturase",
+        "desc": "A fizzy chemical that helps rebuild trauma caused by piercing damage, leaving a slight amount of tissue damage behind.",
+        "physicalDesc": "fizzy",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Puncturase",
+                "impact": "Medium",
+                "minTemp": 325,
+                "reactants": [
+                    [
+                        "bicaridine",
+                        1,
+                        false
+                    ],
+                    [
+                        "hydroxide",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "puncturase",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Modifies health by <span style=\"color:green\">4</span> Piercing and <span style=\"color:red\">0.1</span> Blunt",
+            "\n",
+            "* Deals <span style=\"color:red\">5</span> Blunt when there's at least 11u of puncturase"
+        ],
+        "effectLine": "'''Medicine''':\n* Modifies health by <span style=\"color:green\">4</span> Piercing and <span style=\"color:red\">0.1</span> Blunt\n* Deals <span style=\"color:red\">5</span> Blunt when there's at least 11u of puncturase"
+    },
+    {
+        "id": "Bruizine",
+        "group": "Medicine",
+        "color": "#ff3636",
+        "textColorTheme": "light",
+        "flavor": "sour",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Blunt": -3.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 10.5,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Poison": 4
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "name": "bruizine",
+        "desc": "Originally developed as a cough medicine, it turns out this chemical is wildly effective at treating blunt force trauma.",
+        "physicalDesc": "mucus-like",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Bruizine",
+                "impact": "Medium",
+                "reactants": [
+                    [
+                        "bicaridine",
+                        1,
+                        false
+                    ],
+                    [
+                        "lithium",
+                        0.9,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "bruizine",
+                        2
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3.5</span> Blunt",
+            "\n",
+            "* Deals <span style=\"color:red\">4</span> Poison when there's at least 10.5u of bruizine"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3.5</span> Blunt\n* Deals <span style=\"color:red\">4</span> Poison when there's at least 10.5u of bruizine"
+    },
+    {
+        "id": "Holywater",
+        "group": "Medicine",
+        "color": "#91C3F7",
+        "textColorTheme": "light",
+        "flavor": "holy",
+        "metabolisms": {
+            "Drink": {
+                "effects": [
+                    {
+                        "class": "SatiateThirst",
+                        "factor": 3
+                    }
+                ]
+            },
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "TotalDamage",
+                                "max": 50,
+                                "min": 0
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Blunt": -0.2,
+                                "Poison": -0.2,
+                                "Heat": -0.2,
+                                "Shock": -0.2,
+                                "Cold": -0.2
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "plantMetabolism": [
+            {
+                "class": "PlantAdjustWater",
+                "amount": 1
+            }
+        ],
+        "name": "holy water",
+        "desc": "The cleanest and purest of waters straight from the hands of god, is known to magically heal wounds.",
+        "physicalDesc": "holy",
+        "recipes": [],
+        "effects": [
+            "'''Drink''':",
+            "\n",
+            "* Satiates thirst averagely",
+            "\n",
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">0.2</span> Blunt, <span style=\"color:green\">0.2</span> Poison, <span style=\"color:green\">0.2</span> Heat, <span style=\"color:green\">0.2</span> Shock, and <span style=\"color:green\">0.2</span> Cold when it has at most 50 total damage",
+            "\n",
+            "'''Plants''':",
+            "\n",
+            "* Adjusts water level by <span style=\"color:green\">1</span>"
+        ],
+        "effectLine": "'''Drink''':\n* Satiates thirst averagely\n'''Medicine''':\n* Heals <span style=\"color:green\">0.2</span> Blunt, <span style=\"color:green\">0.2</span> Poison, <span style=\"color:green\">0.2</span> Heat, <span style=\"color:green\">0.2</span> Shock, and <span style=\"color:green\">0.2</span> Cold when it has at most 50 total damage\n'''Plants''':\n* Adjusts water level by <span style=\"color:green\">1</span>"
+    },
+    {
+        "id": "Pyrazine",
+        "group": "Medicine",
+        "color": "#aa4308",
+        "textColorTheme": "light",
+        "flavor": "syrupy",
+        "metabolisms": {
+            "Medicine": {
+                "metabolismRate": 0.1,
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Heat": -1
+                            }
+                        }
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Slash": 0.5,
+                                "Piercing": 0.5
+                            }
+                        }
+                    },
+                    {
+                        "class": "ChemVomit",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 15,
+                                "max": null
+                            }
+                        ],
+                        "probability": 0.1
+                    },
+                    {
+                        "class": "Emote",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 20
+                            }
+                        ],
+                        "emote": "Scream",
+                        "probability": 0.2
+                    }
+                ]
+            }
+        },
+        "name": "pyrazine",
+        "desc": "Efficiently heals burns from the hottest of fires. Causes massive internal bleeding when overdosed.",
+        "physicalDesc": "thick",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Pyrazine",
+                "impact": "Medium",
+                "minTemp": 540,
+                "reactants": [
+                    [
+                        "leporazine",
+                        1,
+                        false
+                    ],
+                    [
+                        "dermaline",
+                        1,
+                        false
+                    ],
+                    [
+                        "carbon",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "pyrazine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">1</span> Heat",
+            "\n",
+            "* Deals <span style=\"color:red\">0.5</span> Slash and <span style=\"color:red\">0.5</span> Piercing when there's at least 20u of pyrazine",
+            "\n",
+            "* Has a 10% chance to cause vomiting when there's at least 15u of pyrazine"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">1</span> Heat\n* Deals <span style=\"color:red\">0.5</span> Slash and <span style=\"color:red\">0.5</span> Piercing when there's at least 20u of pyrazine\n* Has a 10% chance to cause vomiting when there's at least 15u of pyrazine"
+    },
+    {
+        "id": "Insuzine",
+        "group": "Medicine",
+        "color": "#8147ff",
+        "textColorTheme": "light",
+        "flavor": "metallic",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "damage": {
+                            "types": {
+                                "Shock": -4
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "licoxide",
+                        "amount": -4
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "tazinide",
+                        "amount": -4
+                    },
+                    {
+                        "class": "AdjustTemperature",
+                        "amount": -5000
+                    },
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 12,
+                                "max": null
+                            }
+                        ],
+                        "damage": {
+                            "types": {
+                                "Cold": 2
+                            }
+                        }
+                    },
+                    {
+                        "class": "AdjustTemperature",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 12,
+                                "max": null
+                            }
+                        ],
+                        "amount": -30000
+                    },
+                    {
+                        "class": "Jitter",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 12,
+                                "max": null
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "name": "insuzine",
+        "desc": "Rapidly repairs dead tissue caused by electrocution, but cools you slightly. Completely freezes the patient when overdosed.",
+        "physicalDesc": "frosty",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Insuzine",
+                "impact": "Medium",
+                "minTemp": 433,
+                "reactants": [
+                    [
+                        "leporazine",
+                        1,
+                        false
+                    ],
+                    [
+                        "kelotane",
+                        1,
+                        false
+                    ],
+                    [
+                        "silicon",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "insuzine",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">4</span> Shock",
+            "\n",
+            "* Removes 4u of licoxide from the solution",
+            "\n",
+            "* Removes 4u of tazinide from the solution",
+            "\n",
+            "* Removes 5kJ of heat from the body it's in",
+            "\n",
+            "* Deals <span style=\"color:red\">2</span> Cold when there's at least 12u of insuzine",
+            "\n",
+            "* Removes 30kJ of heat from the body it's in when there's at least 12u of insuzine",
+            "\n",
+            "* Causes jittering when there's at least 12u of insuzine"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">4</span> Shock\n* Removes 4u of licoxide from the solution\n* Removes 4u of tazinide from the solution\n* Removes 5kJ of heat from the body it's in\n* Deals <span style=\"color:red\">2</span> Cold when there's at least 12u of insuzine\n* Removes 30kJ of heat from the body it's in when there's at least 12u of insuzine\n* Causes jittering when there's at least 12u of insuzine"
+    },
+    {
+        "id": "Opporozidone",
+        "group": "Medicine",
+        "color": "#b5e36d",
+        "textColorTheme": "dark",
+        "flavor": "acid",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "ReduceRotting",
+                        "seconds": 20,
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 150,
+                                "min": 0
+                            },
+                            {
+                                "class": "MobStateCondition",
+                                "mobstate": "Dead"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "name": "opporozidone",
+        "desc": "A difficult to synthesize cryogenic drug used to regenerate rotting tissue and brain matter.",
+        "physicalDesc": "sickly",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Opporozidone",
+                "minTemp": 400,
+                "reactants": [
+                    [
+                        "cognizine",
+                        1,
+                        false
+                    ],
+                    [
+                        "plasma",
+                        2,
+                        false
+                    ],
+                    [
+                        "doxarubixadone",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "opporozidone",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Reduces 20s of rotting when the body's temperature is at most 150k and the mob is dead"
+        ],
+        "effectLine": "'''Medicine''':\n* Reduces 20s of rotting when the body's temperature is at most 150k and the mob is dead"
+    },
+    {
+        "id": "Necrosol",
+        "group": "Medicine",
+        "color": "#86a5bd",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 213,
+                                "min": 0
+                            }
+                        ],
+                        "damage": {
+                            "groups": {
+                                "Brute": -4,
+                                "Burn": -5
+                            },
+                            "types": {
+                                "Poison": -2
+                            }
+                        }
                     }
                 ]
             }
@@ -544,248 +3430,525 @@
         "plantMetabolism": [
             {
                 "class": "PlantAdjustToxins",
-                "amount": 4
+                "amount": -5
             },
             {
-                "class": "PlantAdjustWeeds",
-                "amount": -6
+                "class": "PlantAdjustHealth",
+                "amount": 5
+            },
+            {
+                "class": "PlantCryoxadone {}"
             }
         ],
-        "name": "weed killer",
-        "desc": "A mixture that targets weeds. Very effective against kudzu. While useful it slowly poisons plants with toxins, be careful when using it.",
-        "physicalDesc": "bubbling",
-        "recipes": [],
+        "name": "necrosol",
+        "desc": "A necrotic substance that seems to be able to heal frozen corpses. It can treat and rejuvenate plants when applied in small doses.",
+        "physicalDesc": "necrotic",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Necrosol",
+                "impact": "Medium",
+                "minTemp": 370,
+                "reactants": [
+                    [
+                        "blood",
+                        3,
+                        false
+                    ],
+                    [
+                        "omnizine",
+                        1,
+                        false
+                    ],
+                    [
+                        "cryoxadone",
+                        2,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "necrosol",
+                        2
+                    ]
+                ]
+            }
+        ],
         "effects": [
-            "'''Poison''':",
+            "'''Medicine''':",
             "\n",
-            "* Deals <span style=\"color:red\">4</span> Poison when the metabolizing organ is a Plant organ",
+            "* Heals <span style=\"color:green\">4</span> Brute, <span style=\"color:green\">5</span> Burn, and <span style=\"color:green\">2</span> Poison when the body's temperature is at most 213k",
             "\n",
             "'''Plants''':",
             "\n",
-            "* Adjusts toxins level by <span style=\"color:red\">4</span>",
+            "* Adjusts toxins level by <span style=\"color:green\">-5</span>",
             "\n",
-            "* Adjusts weeds level by <span style=\"color:green\">-6</span>"
+            "* Adjusts health by <span style=\"color:green\">5</span>",
+            "\n",
+            "* Ages back the plant, depending on the plant's age and time to grow"
         ],
-        "effectLine": "'''Poison''':\n* Deals <span style=\"color:red\">4</span> Poison when the metabolizing organ is a Plant organ\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:red\">4</span>\n* Adjusts weeds level by <span style=\"color:green\">-6</span>"
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">4</span> Brute, <span style=\"color:green\">5</span> Burn, and <span style=\"color:green\">2</span> Poison when the body's temperature is at most 213k\n'''Plants''':\n* Adjusts toxins level by <span style=\"color:green\">-5</span>\n* Adjusts health by <span style=\"color:green\">5</span>\n* Ages back the plant, depending on the plant's age and time to grow"
     },
     {
-        "id": "Ammonia",
-        "group": "Botanical",
-        "color": "#77b58e",
-        "flavor": "bitter",
+        "id": "Aloxadone",
+        "group": "Medicine",
+        "color": "#89f77f",
+        "textColorTheme": "dark",
+        "flavor": "medicine",
         "metabolisms": {
-            "Poison": {
+            "Medicine": {
                 "effects": [
                     {
                         "class": "HealthChange",
+                        "conditions": [
+                            {
+                                "class": "Temperature",
+                                "max": 213,
+                                "min": 0
+                            }
+                        ],
                         "damage": {
                             "types": {
-                                "Caustic": 1
+                                "Heat": -3,
+                                "Shock": -3,
+                                "Caustic": -1
                             }
                         }
                     }
                 ]
-            },
-            "Gas": {
+            }
+        },
+        "name": "aloxadone",
+        "desc": "A cryogenics chemical. Used to treat severe third degree burns via regeneration of the burnt tissue. Works regardless of the patient being alive or dead.",
+        "physicalDesc": "soothing",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Aloxadone",
+                "impact": "Medium",
+                "reactants": [
+                    [
+                        "cryoxadone",
+                        1,
+                        false
+                    ],
+                    [
+                        "aloe",
+                        2,
+                        false
+                    ],
+                    [
+                        "sigynate",
+                        2,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "aloxadone",
+                        4
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Heals <span style=\"color:green\">3</span> Heat, <span style=\"color:green\">3</span> Shock, and <span style=\"color:green\">1</span> Caustic when the body's temperature is at most 213k"
+        ],
+        "effectLine": "'''Medicine''':\n* Heals <span style=\"color:green\">3</span> Heat, <span style=\"color:green\">3</span> Shock, and <span style=\"color:green\">1</span> Caustic when the body's temperature is at most 213k"
+    },
+    {
+        "id": "Mannitol",
+        "group": "Medicine",
+        "color": "#A0A0A0",
+        "textColorTheme": "light",
+        "flavor": "sweet",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "PopupMessage",
+                        "conditions": [
+                            {
+                                "class": "ReagentThreshold",
+                                "min": 15
+                            }
+                        ],
+                        "type": "Local",
+                        "visualType": "Medium",
+                        "messages": [
+                            "mannitol-effect-enlightened"
+                        ],
+                        "probability": 0.2
+                    }
+                ]
+            }
+        },
+        "name": "mannitol",
+        "desc": "Efficiently restores brain damage.",
+        "physicalDesc": "opaque",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Mannitol",
+                "reactants": [
+                    [
+                        "hydrogen",
+                        1,
+                        false
+                    ],
+                    [
+                        "water",
+                        1,
+                        false
+                    ],
+                    [
+                        "sugar",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "mannitol",
+                        3
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':"
+        ],
+        "effectLine": "'''Medicine''':"
+    },
+    {
+        "id": "Psicodine",
+        "group": "Medicine",
+        "color": "#07E79E",
+        "textColorTheme": "light",
+        "flavor": "bitter",
+        "metabolisms": {
+            "Medicine": {
                 "effects": [
                     {
                         "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Rat",
-                                "shouldHave": false
-                            },
-                            {
                                 "class": "ReagentThreshold",
-                                "reagent": "Ammonia",
-                                "min": 1,
+                                "min": 30,
                                 "max": null
                             }
                         ],
-                        "ignoreResistances": true,
                         "damage": {
                             "types": {
-                                "Poison": 0.25
+                                "Poison": 2
                             }
                         }
                     },
                     {
-                        "class": "ChemVomit",
-                        "probability": 0.12,
+                        "class": "GenericStatusEffect",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Rat",
-                                "shouldHave": false
-                            },
-                            {
-                                "class": "OrganType",
-                                "type": "Vox",
-                                "shouldHave": false
-                            },
-                            {
                                 "class": "ReagentThreshold",
-                                "reagent": "Ammonia",
-                                "min": 0.8,
+                                "min": 30,
                                 "max": null
                             }
-                        ]
+                        ],
+                        "key": "SeeingRainbows",
+                        "component": "SeeingRainbows",
+                        "type": "Add",
+                        "time": 8,
+                        "refresh": false
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Jitter",
+                        "time": 2,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Drunk",
+                        "time": 6,
+                        "type": "Remove"
                     },
                     {
                         "class": "PopupMessage",
                         "type": "Local",
                         "visualType": "Medium",
                         "messages": [
-                            "ammonia-smell"
+                            "psicodine-effect-fearless",
+                            "psicodine-effect-anxieties-wash-away",
+                            "psicodine-effect-at-peace"
                         ],
-                        "probability": 0.1,
-                        "conditions": [
-                            {
-                                "class": "ReagentThreshold",
-                                "reagent": "Ammonia",
-                                "min": 0.25
-                            }
-                        ]
+                        "probability": 0.2
+                    }
+                ]
+            }
+        },
+        "name": "psicodine",
+        "desc": "Suppresses anxiety and other various forms of mental distress. Overdose causes hallucinations and minor toxin damage.",
+        "physicalDesc": "shiny",
+        "recipes": [
+            {
+                "type": "reaction",
+                "id": "Psicodine",
+                "impact": "Medium",
+                "reactants": [
+                    [
+                        "mannitol",
+                        2,
+                        false
+                    ],
+                    [
+                        "impedrezene",
+                        1,
+                        false
+                    ],
+                    [
+                        "water",
+                        2,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "psicodine",
+                        4
+                    ]
+                ]
+            }
+        ],
+        "effects": [
+            "'''Medicine''':",
+            "\n",
+            "* Deals <span style=\"color:red\">2</span> Poison when there's at least 30u of psicodine",
+            "\n",
+            "* Causes hallucinations for at least 0.8s with accumulation when there's at least 30u of psicodine",
+            "\n",
+            "* Removes 2s of jittering",
+            "\n",
+            "* Removes 6s of drunkness"
+        ],
+        "effectLine": "'''Medicine''':\n* Deals <span style=\"color:red\">2</span> Poison when there's at least 30u of psicodine\n* Causes hallucinations for at least 0.8s with accumulation when there's at least 30u of psicodine\n* Removes 2s of jittering\n* Removes 6s of drunkness"
+    },
+    {
+        "id": "PotassiumIodide",
+        "group": "Medicine",
+        "color": "#baa15d",
+        "textColorTheme": "light",
+        "flavor": "medicine",
+        "metabolisms": {
+            "Medicine": {
+                "effects": [
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "RadiationProtection",
+                        "component": "RadiationProtection",
+                        "time": 2,
+                        "type": "Add",
+                        "refresh": false
                     },
                     {
                         "class": "HealthChange",
                         "conditions": [
                             {
-                                "class": "OrganType",
-                                "type": "Rat",
-                                "shouldHave": true
-                            },
-                            {
                                 "class": "ReagentThreshold",
-                                "reagent": "Ammonia",
-                                "min": 1,
+                                "min": 20,
                                 "max": null
                             }
                         ],
-                        "scaleByQuantity": true,
-                        "ignoreResistances": true,
                         "damage": {
-                            "groups": {
-                                "Brute": -5,
-                                "Burn": -5
-                            },
                             "types": {
-                                "Bloodloss": -5
+                                "Poison": 1
                             }
                         }
-                    },
-                    {
-                        "class": "Oxygenate",
-                        "conditions": [
-                            {
-                                "class": "OrganType",
-                                "type": "Vox"
-                            }
-                        ],
-                        "factor": -4
                     }
                 ]
             }
         },
-        "plantMetabolism": [
+        "name": "potassium iodide",
+        "desc": "Will reduce the damaging effects of radiation by 90%. Prophylactic use only.",
+        "physicalDesc": "grainy",
+        "recipes": [
             {
-                "class": "PlantAdjustNutrition",
-                "amount": 1
-            },
-            {
-                "class": "PlantAdjustHealth",
-                "amount": 0.5
+                "type": "reaction",
+                "id": "PotassiumIodide",
+                "reactants": [
+                    [
+                        "potassium",
+                        1,
+                        false
+                    ],
+                    [
+                        "iodine",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "potassium iodide",
+                        2
+                    ]
+                ]
             }
         ],
-        "name": "ammonia",
-        "desc": "An effective fertilizer, it gives your plants some nutrients.",
-        "physicalDesc": "pungent",
-        "recipes": [],
         "effects": [
-            "'''Poison''':",
+            "'''Medicine''':",
             "\n",
-            "* Deals <span style=\"color:red\">1</span> Caustic",
+            "* Causes radiation protection for at least 0.2s with accumulation",
             "\n",
-            "'''Gas''':",
-            "\n",
-            "* Deals <span style=\"color:red\">0.25</span> Poison when the metabolizing organ is not a Rat organ and there's at least 1u of ammonia",
-            "\n",
-            "* Has a 12% chance to cause vomiting when the metabolizing organ is not a Rat organ, the metabolizing organ is not a Vox organ, and there's at least 0.8u of ammonia",
-            "\n",
-            "* Heals <span style=\"color:green\">5</span> Brute, <span style=\"color:green\">5</span> Burn, and <span style=\"color:green\">5</span> Bloodloss when the metabolizing organ is a Rat organ and there's at least 1u of ammonia",
-            "\n",
-            "'''Plants''':",
-            "\n",
-            "* Adjusts nutrition level by <span style=\"color:green\">1</span>",
-            "\n",
-            "* Adjusts health by <span style=\"color:green\">0.5</span>"
+            "* Deals <span style=\"color:red\">1</span> Poison when there's at least 20u of potassium iodide"
         ],
-        "effectLine": "'''Poison''':\n* Deals <span style=\"color:red\">1</span> Caustic\n'''Gas''':\n* Deals <span style=\"color:red\">0.25</span> Poison when the metabolizing organ is not a Rat organ and there's at least 1u of ammonia\n* Has a 12% chance to cause vomiting when the metabolizing organ is not a Rat organ, the metabolizing organ is not a Vox organ, and there's at least 0.8u of ammonia\n* Heals <span style=\"color:green\">5</span> Brute, <span style=\"color:green\">5</span> Burn, and <span style=\"color:green\">5</span> Bloodloss when the metabolizing organ is a Rat organ and there's at least 1u of ammonia\n'''Plants''':\n* Adjusts nutrition level by <span style=\"color:green\">1</span>\n* Adjusts health by <span style=\"color:green\">0.5</span>"
+        "effectLine": "'''Medicine''':\n* Causes radiation protection for at least 0.2s with accumulation\n* Deals <span style=\"color:red\">1</span> Poison when there's at least 20u of potassium iodide"
     },
     {
-        "id": "Diethylamine",
-        "group": "Botanical",
-        "color": "#a1000b",
-        "flavor": "bitter",
+        "id": "Haloperidol",
+        "group": "Medicine",
+        "color": "#27870a",
+        "textColorTheme": "light",
+        "flavor": "medicine",
         "metabolisms": {
-            "Poison": {
+            "Medicine": {
                 "effects": [
                     {
-                        "class": "HealthChange",
-                        "damage": {
-                            "types": {
-                                "Caustic": 1
-                            }
-                        }
+                        "class": "Emote",
+                        "emote": "Yawn",
+                        "showInChat": true,
+                        "probability": 0.1
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Drowsiness",
+                        "component": "Drowsiness",
+                        "time": 4,
+                        "type": "Add",
+                        "refresh": false
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "Jitter",
+                        "time": 4,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "GenericStatusEffect",
+                        "key": "SeeingRainbows",
+                        "time": 10,
+                        "type": "Remove"
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "desoxyephedrine",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "ephedrine",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "hyperzine",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "THC",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "space mirage",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "bananadine",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "space glue",
+                        "amount": -3
+                    },
+                    {
+                        "class": "AdjustReagent",
+                        "reagent": "mindbreaker toxin",
+                        "amount": -3
                     }
                 ]
             }
         },
-        "plantMetabolism": [
+        "name": "haloperidol",
+        "desc": "Removes most stimulating and hallucinogenic drugs. Reduces druggy effects and jitteriness. Causes drowsiness.",
+        "physicalDesc": "crystalline",
+        "recipes": [
             {
-                "class": "PlantAdjustNutrition",
-                "amount": 0.1
-            },
-            {
-                "class": "PlantAdjustPests",
-                "probability": 0.1,
-                "amount": -1
-            },
-            {
-                "class": "PlantAdjustHealth",
-                "amount": 0.1
-            },
-            {
-                "class": "PlantAffectGrowth",
-                "probability": 0.2,
-                "amount": 1
-            },
-            {
-                "class": "PlantDiethylamine {}"
+                "type": "reaction",
+                "id": "Haloperidol",
+                "reactants": [
+                    [
+                        "aluminium",
+                        1,
+                        false
+                    ],
+                    [
+                        "chlorine",
+                        1,
+                        false
+                    ],
+                    [
+                        "fluorine",
+                        1,
+                        false
+                    ],
+                    [
+                        "oil",
+                        1,
+                        false
+                    ],
+                    [
+                        "potassium iodide",
+                        1,
+                        false
+                    ]
+                ],
+                "products": [
+                    [
+                        "haloperidol",
+                        5
+                    ]
+                ]
             }
         ],
-        "name": "diethylamine",
-        "desc": "A very potent fertilizer, treats plants with nutrients, eliminates pests, and sometimes it can even speed up growth.",
-        "physicalDesc": "strong smelling",
-        "recipes": [],
         "effects": [
-            "'''Poison''':",
+            "'''Medicine''':",
             "\n",
-            "* Deals <span style=\"color:red\">1</span> Caustic",
+            "* Causes drowsiness for at least 0.4s with accumulation",
             "\n",
-            "'''Plants''':",
+            "* Removes 4s of jittering",
             "\n",
-            "* Adjusts nutrition level by <span style=\"color:green\">0.1</span>",
+            "* Removes 10s of hallucinations",
             "\n",
-            "* Has a 10% chance to adjust pests level by <span style=\"color:green\">-1</span>",
+            "* Removes 3u of desoxyephedrine from the solution",
             "\n",
-            "* Adjusts health by <span style=\"color:green\">0.1</span>",
+            "* Removes 3u of ephedrine from the solution",
             "\n",
-            "* Has a 20% chance to adjust age by <span style=\"color:green\">1</span>",
+            "* Removes 3u of hyperzine from the solution",
             "\n",
-            "* Increases the plant's lifespan and/or base health with 10% chance for each"
+            "* Removes 3u of THC from the solution",
+            "\n",
+            "* Removes 3u of space mirage from the solution",
+            "\n",
+            "* Removes 3u of bananadine from the solution",
+            "\n",
+            "* Removes 3u of space glue from the solution",
+            "\n",
+            "* Removes 3u of mindbreaker toxin from the solution"
         ],
-        "effectLine": "'''Poison''':\n* Deals <span style=\"color:red\">1</span> Caustic\n'''Plants''':\n* Adjusts nutrition level by <span style=\"color:green\">0.1</span>\n* Has a 10% chance to adjust pests level by <span style=\"color:green\">-1</span>\n* Adjusts health by <span style=\"color:green\">0.1</span>\n* Has a 20% chance to adjust age by <span style=\"color:green\">1</span>\n* Increases the plant's lifespan and/or base health with 10% chance for each"
+        "effectLine": "'''Medicine''':\n* Causes drowsiness for at least 0.4s with accumulation\n* Removes 4s of jittering\n* Removes 10s of hallucinations\n* Removes 3u of desoxyephedrine from the solution\n* Removes 3u of ephedrine from the solution\n* Removes 3u of hyperzine from the solution\n* Removes 3u of THC from the solution\n* Removes 3u of space mirage from the solution\n* Removes 3u of bananadine from the solution\n* Removes 3u of space glue from the solution\n* Removes 3u of mindbreaker toxin from the solution"
     }
 ]
