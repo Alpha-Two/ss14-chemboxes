@@ -7,6 +7,7 @@ var { FluentBundle, FluentResource } = require("@fluent/bundle");
 
 // ****************** CONFIGURING CONSTANTS ******************
 const resourcesFolder = "./space-station-14/Resources/";
+const commandArray = ["g -y botany"]
 // ***********************************************************
 
 
@@ -15,6 +16,7 @@ var bundle = new FluentBundle("en-US");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/food/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/drink/");
+loadFluentDir(resourcesFolder + "Locale/en-US/guidebook/chemistry/")
 
 
 var fullData = []
@@ -23,8 +25,16 @@ var reactions = []
 
 // internal commandline let's go! TODO make this take arguments from the actual commandline + a config file
 while (true) {
-	let args = parseArgs(prompt("> ").split(" "));
-	console.log(args)
+	let args = ""
+	
+	if (commandArray[0]) {
+		console.log("\n\nRunning Headless...\n\n")
+		args = commandArray.pop().split(" ")
+	} else {
+		args = prompt("> ").split(" ");
+	}
+	args = parseArgs(args)
+	// console.log(args)
 	switch (args.custom[0]) {
 		case "g":
 			fullData = fullUpdate(args);
@@ -67,7 +77,7 @@ function fullUpdate(args) {
 // takes YAML (as a JSON object) and turns it into the output schema
 function outputFromYAML(reagents, reactions) {
 	let output = [];
-	console.log(reagents, reactions)
+	// console.log(reagents, reactions)
 	for (let i = 0; i < reagents.length; i++) {
 		const e = reagents[i];
 		output[i] = {};
@@ -76,6 +86,7 @@ function outputFromYAML(reagents, reactions) {
 		output[i].color = e.color;
 		output[i].flavor = e.flavor;
 		output[i].metabolisms = e.metabolisms;
+		output[i].plantMetabolism = e.plantMetabolism
 		let name = bundle.getMessage(e.name);
 		output[i].name = bundle.formatPattern(name.value);
 		let desc = bundle.getMessage(e.desc);
@@ -121,19 +132,29 @@ function outputFromYAML(reagents, reactions) {
 		output[e].effects = [];
 		let f = output[e].metabolisms;
 		for (const g in f) {
-			output[e].effects.push("'''" + g + "''':");
+			output[e].effects.push("\'\'\'" + g + "\'\'\':");
 			let h = f[g].effects;
 			for (let i = 0; i < h.length; i++) {
-				let response = effectsHandler(h[i], output[e]);
+				let response = effectsHandler(h[i], output[e], false);
 				if (response == "") continue;
 				output[e].effects.push("* " + response);
 			}
 		}
+		f = output[e].plantMetabolism
+		if (f) {
+			output[e].effects.push("'''Plants''':")
+			for (const g in f) {
+				let response = effectsHandler(f[g], output[e], true)
+				if (response == "") continue
+				output[e].effects.push("* " + response)
+			}
+		}
+
 		let result = output[e].effects.flatMap((v, i, a) => {
-			console.log(a);
+			// console.log(a);
 			return a.length - 1 != i ? [v, "\n"] : v;
 		});
-		console.log(result);
+		// console.log(result);
 		output[e].effects = result;
 
 		output[e].effectLine = output[e].effects.join("")
@@ -158,7 +179,7 @@ function makeDiv(args) {
 	} else {
 		colors = "#ffffff";
 	}
-	console.log(colors);
+	// console.log(colors);
 	recipeOutput = "";
 	for (let i = 0; i < data.recipes.length; i++) {
 		recipeOutput += "{{Recipe Box|name=" + Case.title(data.name);
@@ -202,7 +223,7 @@ function makeDiv(args) {
 }
 
 // used by outputFromYAML, is a ton of spaghetti code (looking at you massive switch statement)
-function effectsHandler(data, fullObject) {
+function effectsHandler(data, fullObject, isPlant) {
 	let statusEffects = {
 		Stun: "stunning",
 		KnockedDown: "knockdown",
@@ -230,218 +251,312 @@ function effectsHandler(data, fullObject) {
 	let initialVerb = "";
 	let sign = true;
 	let rs = undefined;
-	switch (data.class) {
-		case "GenericStatusEffect":
-			initialVerb =
-				data.type == "Remove"
-					? chanceString
-						? "remove "
-						: "Removes "
-					: chanceString
-						? "cause "
-						: "Causes ";
-			let effect = statusEffects[data.key];
-			data.time = data.time || 2;
-			fs =
-				initialVerb +
-				(data.type == "Remove"
-					? lNatFix(data.time, 2) + "s of " + effect
-					: effect +
-					" for at least " +
-					lNatFix(data.time, 2) / 10 +
-					"s " +
-					(data.type == "Add"
-						? "with accumulation"
-						: "without accumulation"));
-			rs = fs;
-			break;
-		case "Drunk":
-			rs = (chanceString ? "cause " : "Causes ") + "drunkness";
-			break;
-		case "HealthChange":
-			let damages = [];
-			let heals = false;
-			let deals = false;
-			for (const key in data.damage.groups) {
-				value = data.damage.groups[key];
+	if (!isPlant) {
+		switch (data.class) {
+			case "GenericStatusEffect":
+				initialVerb =
+					data.type == "Remove"
+						? chanceString
+							? "remove "
+							: "Removes "
+						: chanceString
+							? "cause "
+							: "Causes ";
+				let effect = statusEffects[data.key];
+				data.time = data.time || 2;
+				fs =
+					initialVerb +
+					(data.type == "Remove"
+						? lNatFix(data.time, 2) + "s of " + effect
+						: effect +
+						" for at least " +
+						lNatFix(data.time, 2) / 10 +
+						"s " +
+						(data.type == "Add"
+							? "with accumulation"
+							: "without accumulation"));
+				rs = fs;
+				break;
+			case "Drunk":
+				rs = (chanceString ? "cause " : "Causes ") + "drunkness";
+				break;
+			case "HealthChange":
+				let damages = [];
+				let heals = false;
+				let deals = false;
+				for (const key in data.damage.groups) {
+					value = data.damage.groups[key];
 
-				damages.push([key, value]);
-			}
-			for (const key in data.damage.types) {
-				value = data.damage.types[key];
-
-				damages.push([key, value]);
-			}
-			for (let i = 0; i < damages.length; i++) {
-				const e = damages[i];
-				if (e[1] > 0) {
-					deals = true;
-				} else if (e[1] < 0) {
-					heals = true;
+					damages.push([key, value]);
 				}
-				damages[i] =
-					(e[1] > 0
-						? '<span style="color:red">'
-						: '<span style="color:green">') +
-					lNatFix(Math.abs(e[1]), 2) +
-					"</span> " +
-					e[0];
-			}
-			let healsordeals = heals
-				? deals
-					? "both"
-					: "heals"
-				: deals
-					? "deals"
-					: "";
-			damages = makeList(damages);
-			initialVerb = "";
-			switch (healsordeals) {
-				case "heals":
-					initialVerb = chanceString ? "heal " : "Heals ";
-					break;
-				case "deals":
-					initialVerb = chanceString ? "deal " : "Deals ";
-					break;
-				default:
-					initialVerb = chanceString
-						? "modify health by "
-						: "Modifies health by ";
-					break;
-			}
-			rs = initialVerb + damages;
-			break;
-		case "Jitter":
-			rs = (chanceString ? "cause " : "Causes ") + "jittering";
-			break;
-		case "PopupMessage":
-			rs = "";
-			break;
-		case "ChemVomit":
-			rs = (chanceString ? "cause " : "Causes ") + "vomiting";
-			break;
-		case "AdjustReagent":
-			sign = data.amount >= 0; // true is positive
-			fs = chanceString
-				? sign
-					? "add "
-					: "remove "
-				: sign
-					? "Adds "
-					: "Removes ";
-			fs += lNatFix(Math.abs(data.amount), 2) + "u of ";
-			if (data.reagent) {
-				data.reagent = rName(data.reagent);
-				fs += data.reagent;
-			} else {
-				fs += "reagents in the group " + data.group;
-			}
-			fs += (sign ? " to" : " from") + " the solution";
-			rs = fs;
-			break;
-		case "ModifyBleedAmount":
-			sign = data.amount >= 0;
-			rs = chanceString
-				? sign
-					? "induce bleeding"
-					: "reduce bleeding"
-				: sign
-					? "Induces bleeding"
-					: "Reduces bleeding";
-			break;
-		case "SatiateThirst":
-			data.factor = data.factor || 3;
-			fs = chanceString ? "satiate " : "Satiates ";
-			let relative = data.factor / 3;
-			if (relative == 1) {
-				fs += "thirst averagely";
-			} else {
-				fs += "thirst at " + lNatFix(relative, 3) + "x the average rate";
-			}
-			rs = fs;
-			break;
-		case "AdjustTemperature":
-			sign = data.amount >= 0;
-			fs = chanceString
-				? sign
-					? "add "
-					: "remove "
-				: sign
-					? "Adds "
-					: "Removes ";
-			fs += lFormJ(Math.abs(data.amount)) + " of heat ";
-			fs += sign ? "to " : "from ";
-			fs += "the body it's in";
-			rs = fs;
-			break;
-		case "Emote":
-			rs = "";
-			break;
-		case "CureZombieInfection":
-			fs = chanceString ? "cure " : "Cures ";
-			fs += "an ongoing zombie infection";
-			if (data.innoculate) fs += ", and provides immunity to future infections";
-			rs = fs;
-			break;
-		case "ModifyBloodLevel":
-			sign = data.amount >= 0;
-			fs = chanceString
-				? sign
-					? "increase "
-					: "decrease "
-				: sign
-					? "Increases "
-					: "Decreases ";
-			fs += "blood level";
-			rs = fs;
-			break;
-		case "SatiateHunger":
-			data.factor = data.factor || 3;
-			fs = chanceString ? "satiate " : "Satiates ";
-			let hungerRate = data.factor / 3;
-			if (hungerRate == 1) {
-				fs += "hunger averagely";
-			} else {
-				fs += "hunger at " + lNatFix(hungerRate, 3) + "x the average rate";
-			}
-			rs = fs;
-			break;
-		case "ChemHealEyeDamage":
-			data.amount = data.amount || -1;
-			sign = data.amount >= 0;
-			fs = chanceString
-				? sign
-					? "deal "
-					: "heal "
-				: sign
-					? "Deals "
-					: "Heals ";
-			fs += "eye damage";
-			rs = fs;
-			break;
-		case "MakeSentient":
-			fs = chanceString ? "make " : "Makes ";
-			fs += "the metabolizer sentient";
-			rs = fs;
-			break;
-		case "ResetNarcolepsy":
-			fs = chanceString ? "temporarily stave " : "Temporarily staves ";
-			fs += "off narcolepsy";
-			rs = fs;
-			break;
-		case "ReduceRotting":
-			fs = chanceString ? "reduce " : "Reduces ";
-			fs += lNatFix(data.seconds, 3) + "s of rotting";
-			rs = fs;
-			break;
-		default:
-			throw new Error(JSON.stringify(data, null, 4));
-			break;
+				for (const key in data.damage.types) {
+					value = data.damage.types[key];
+
+					damages.push([key, value]);
+				}
+				for (let i = 0; i < damages.length; i++) {
+					const e = damages[i];
+					if (e[1] > 0) {
+						deals = true;
+					} else if (e[1] < 0) {
+						heals = true;
+					}
+					damages[i] =
+						(e[1] > 0
+							? '<span style="color:red">'
+							: '<span style="color:green">') +
+						lNatFix(Math.abs(e[1]), 2) +
+						"</span> " +
+						e[0];
+				}
+				let healsordeals = heals
+					? deals
+						? "both"
+						: "heals"
+					: deals
+						? "deals"
+						: "";
+				damages = makeList(damages);
+				initialVerb = "";
+				switch (healsordeals) {
+					case "heals":
+						initialVerb = chanceString ? "heal " : "Heals ";
+						break;
+					case "deals":
+						initialVerb = chanceString ? "deal " : "Deals ";
+						break;
+					default:
+						initialVerb = chanceString
+							? "modify health by "
+							: "Modifies health by ";
+						break;
+				}
+				rs = initialVerb + damages;
+				break;
+			case "Jitter":
+				rs = (chanceString ? "cause " : "Causes ") + "jittering";
+				break;
+			case "PopupMessage":
+				rs = "";
+				break;
+			case "ChemVomit":
+				rs = (chanceString ? "cause " : "Causes ") + "vomiting";
+				break;
+			case "AdjustReagent":
+				sign = data.amount >= 0; // true is positive
+				fs = chanceString
+					? sign
+						? "add "
+						: "remove "
+					: sign
+						? "Adds "
+						: "Removes ";
+				fs += lNatFix(Math.abs(data.amount), 2) + "u of ";
+				if (data.reagent) {
+					data.reagent = rName(data.reagent);
+					fs += data.reagent;
+				} else {
+					fs += "reagents in the group " + data.group;
+				}
+				fs += (sign ? " to" : " from") + " the solution";
+				rs = fs;
+				break;
+			case "ModifyBleedAmount":
+				sign = data.amount >= 0;
+				rs = chanceString
+					? sign
+						? "induce bleeding"
+						: "reduce bleeding"
+					: sign
+						? "Induces bleeding"
+						: "Reduces bleeding";
+				break;
+			case "SatiateThirst":
+				data.factor = data.factor || 3;
+				fs = chanceString ? "satiate " : "Satiates ";
+				let relative = data.factor / 3;
+				if (relative == 1) {
+					fs += "thirst averagely";
+				} else {
+					fs += "thirst at " + lNatFix(relative, 3) + "x the average rate";
+				}
+				rs = fs;
+				break;
+			case "AdjustTemperature":
+				sign = data.amount >= 0;
+				fs = chanceString
+					? sign
+						? "add "
+						: "remove "
+					: sign
+						? "Adds "
+						: "Removes ";
+				fs += lFormJ(Math.abs(data.amount)) + " of heat ";
+				fs += sign ? "to " : "from ";
+				fs += "the body it's in";
+				rs = fs;
+				break;
+			case "Emote":
+				rs = "";
+				break;
+			case "CureZombieInfection":
+				fs = chanceString ? "cure " : "Cures ";
+				fs += "an ongoing zombie infection";
+				if (data.innoculate) fs += ", and provides immunity to future infections";
+				rs = fs;
+				break;
+			case "ModifyBloodLevel":
+				sign = data.amount >= 0;
+				fs = chanceString
+					? sign
+						? "increase "
+						: "decrease "
+					: sign
+						? "Increases "
+						: "Decreases ";
+				fs += "blood level";
+				rs = fs;
+				break;
+			case "SatiateHunger":
+				data.factor = data.factor || 3;
+				fs = chanceString ? "satiate " : "Satiates ";
+				let hungerRate = data.factor / 3;
+				if (hungerRate == 1) {
+					fs += "hunger averagely";
+				} else {
+					fs += "hunger at " + lNatFix(hungerRate, 3) + "x the average rate";
+				}
+				rs = fs;
+				break;
+			case "ChemHealEyeDamage":
+				data.amount = data.amount || -1;
+				sign = data.amount >= 0;
+				fs = chanceString
+					? sign
+						? "deal "
+						: "heal "
+					: sign
+						? "Deals "
+						: "Heals ";
+				fs += "eye damage";
+				rs = fs;
+				break;
+			case "MakeSentient":
+				fs = chanceString ? "make " : "Makes ";
+				fs += "the metabolizer sentient";
+				rs = fs;
+				break;
+			case "ResetNarcolepsy":
+				fs = chanceString ? "temporarily stave " : "Temporarily staves ";
+				fs += "off narcolepsy";
+				rs = fs;
+				break;
+			case "ReduceRotting":
+				fs = chanceString ? "reduce " : "Reduces ";
+				fs += lNatFix(data.seconds, 3) + "s of rotting";
+				rs = fs;
+				break;
+			case "Polymorph":
+				fs = chanceString ? "polymorph " : "Polymorphs"
+				fs += "the metabolizer into a "
+				switch (data.prototype) {
+					case "TreeMorph":
+						fs += "tree"
+						break;
+					default:
+						fs = undefined
+						break;
+				}
+				rs = fs
+				break;
+			case "Oxygenate":
+				rs = ""
+				break;
+			default:
+				throw new Error(JSON.stringify(data, null, 4));
+				break;
+		}
+	} else {
+		function lPlantAdjust(key, positive) {
+			let returnValue = chanceString ? "adjust " : "Adjusts "
+			data.amount = data.amount || 1
+			let sign = (!positive == !(data.amount >= 0))
+			returnValue += bundle.getMessage(key).value + " by "
+			returnValue += sign ? '<span style="color:green">' : '<span style="color:red">'
+			returnValue += data.amount + "</span>"
+			return returnValue
+		}
+		switch (data.class) {
+			case "PlantAdjustNutrition":
+				rs = lPlantAdjust("plant-attribute-nutrition", true)
+				break;
+			case "PlantAdjustHealth":
+				rs = lPlantAdjust("plant-attribute-health", true)
+				break;
+			case "PlantAdjustMutationMod":
+				rs = lPlantAdjust("plant-attribute-mutation-mod", true)
+				break;
+			case "PlantAdjustToxins":
+				rs = lPlantAdjust("plant-attribute-toxins", false)
+				break;
+			case "PlantAdjustPests":
+				rs = lPlantAdjust("plant-attribute-pests", false)
+				break;
+			case "PlantAdjustWeeds":
+				rs = lPlantAdjust("plant-attribute-weeds", false)
+				break;
+			case "RobustHarvest {}":
+				// potencyLimit and the other variables are not the actual names, as they aren't actually implemented and I just guessed. Should probably fix if it ever comes into play
+				data.potencyLimit = data.potencyLimit || 50;
+				data.potencyIncrease = data.potencyIncrease || 3;
+				data.potencySeedlessThreshold = data.potencySeedlessThreshold || 30;
+				fs = chanceString ? "increase " : "Increases "
+				fs += "the plant's potency by "
+					+ data.potencyIncrease
+					+ " up to a maximum of "
+					+ data.potencyLimit +
+					". Causes the plant to lose its seeds once the potency reaches "
+					+ data.potencySeedlessThreshold +
+					". Trying to add potency over "
+					+ data.potencyLimit +
+					" may cause a decrease in yield at a 10% chance";
+				rs = fs
+				break;
+			case "PlantRestoreSeeds":
+				rs = (chanceString ? "restore " : "Restores ") + "the seeds of the plant"
+				break;
+			case "PlantAdjustPotency":
+				rs = lPlantAdjust("plant-attribute-potency", true)
+				break;
+			case "PlantAffectGrowth":
+				rs = lPlantAdjust("plant-attribute-growth", true)
+				break;
+			case "PlantAdjustWater":
+				rs = lPlantAdjust("plant-attribute-water", true)
+				break;
+			case "PlantDiethylamine {}":
+				rs = (chanceString ? "increase " : "Increases ") + "the plant's lifespan and/or base health with 10% chance for each"
+				break;
+			case "PlantPhalanximine":
+				rs = (chanceString ? "restore " : "Restores ") + "viability to a plant rendered nonviable by a mutation"
+				;break
+			case "PlantCryoxadone {}":
+				rs = (chanceString ? "age " : "Ages ") + "back the plant, depending on the plant's age and time to grow"
+				break;
+			default:
+				throw new Error(JSON.stringify(data, null, 4));
+				break;
+		}
+		console.log(rs)
 	}
+
+	if (rs === undefined) return undefined;
+	if (rs === "") return "";
 	let conditions = [];
 	let cs = "";
 	if (data.conditions) {
 		for (const e of data.conditions) {
+			cs = ""
 			switch (e.class) {
 				case "ReagentThreshold":
 					e.min = e.min || 0;
@@ -510,14 +625,20 @@ function effectsHandler(data, fullObject) {
 					}
 					conditions.push(cs);
 					break;
+				case "OrganType":
+					if (e.shouldHave === undefined) e.shouldHave = true;
+					cs = "the metabolizing organ "
+					cs += e.shouldHave ? "is " : "is not "
+					cs += lIndef(e.type) + " " + e.type + " organ"
+					conditions.push(cs)
+					break;
 				default:
-					console.log("NO CONDITION for " + e.class + "\n");
+					console.warn("NO CONDITION for " + e.class + "\n");
+					console.log(e)
 					break;
 			}
 		}
 	}
-	if (rs === undefined) return undefined;
-	if (rs === "") return "";
 	if (conditions[0]) {
 		rs += " when " + makeList(conditions);
 	}
@@ -530,6 +651,9 @@ function rName(reagent) {
 		return rName("HemocyaninBlood");
 	if (Case.lower(reagent) == "soapreagent")
 		return rName("Soap");
+	if (Case.lower(reagent) == "eznutrient") {
+		return rName("e-z-nutrient")
+	}
 	try {
 		return bundle.getMessage("reagent-name-" + Case.kebab(reagent)).value;
 	} catch (err) {
@@ -584,6 +708,10 @@ function lFormGen(unit) {
 		places += 1;
 	}
 	return [unit, places];
+}
+
+function lIndef(word) {
+	return ["a", "e", "i", "o", "u"].includes(word.substring(0, 1)) ? "an" : "a"
 }
 
 // stolen from the game's localisation manager
