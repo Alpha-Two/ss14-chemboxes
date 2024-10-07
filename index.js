@@ -7,33 +7,31 @@ var { FluentBundle, FluentResource } = require("@fluent/bundle");
 
 // ****************** CONFIGURING CONSTANTS ******************
 const resourcesFolder = "./space-station-14/Resources/";
-const commandArray = ["g -y medicine"]
+const commandArray = fs.readFileSync("./headless.ss").toString().split("\n")
 // ***********************************************************
-
 
 // loading fluent variables
 var bundle = new FluentBundle("en-US");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/food/");
 loadFluentDir(resourcesFolder + "Locale/en-US/reagents/meta/consumable/drink/");
-loadFluentDir(resourcesFolder + "Locale/en-US/guidebook/chemistry/")
+loadFluentDir(resourcesFolder + "Locale/en-US/guidebook/chemistry/");
 
-
-var fullData = []
-var reagentArray = []
-var reactions = []
+var fullData = [];
+var reagentArray = [];
+var reactions = [];
 
 // internal commandline let's go! TODO make this take arguments from the actual commandline + a config file
 while (true) {
-	let args = ""
+	let args = "";
 
 	if (commandArray[0]) {
-		console.log("\n\nRunning Headless...\n\n")
-		args = commandArray.pop().split(" ")
+		console.log("\n\nRunning Headless...\n\n");
+		args = commandArray.pop().split(" ");
 	} else {
 		args = prompt("> ").split(" ");
 	}
-	args = parseArgs(args)
+	args = parseArgs(args);
 	// console.log(args)
 	switch (args.custom[0]) {
 		case "g":
@@ -51,27 +49,38 @@ while (true) {
 // TODO add a way of reading ALL reagents and reactions
 function fullUpdate(args) {
 	if (args.params.y) {
-		reagentArray.push(readYAML(
-			resourcesFolder + "Prototypes/Reagents/" + args.params.y + ".yml"
-		))
-		try {
-			reactions.push(readYAML(
-				resourcesFolder + "Prototypes/Recipes/Reactions/" + args.params.y + ".yml"
-			))
-		} catch (err) {
-			console.error("Couldn't get reactions");
+		let filesToRead = args.params.y.split(",");
+		for (let i = 0; i < filesToRead.length; i++) {
+			const e = filesToRead[i];
+			try{reagentArray.push(
+				readYAML(resourcesFolder + "Prototypes/Reagents/" + e + ".yml")
+			);} catch (err) {
+				console.error("Couldn't find reagent file", e)
+			}
+			try {
+				reactions.push(
+					readYAML(
+						resourcesFolder +
+							"Prototypes/Recipes/Reactions/" +
+							e +
+							".yml"
+					)
+				);
+			} catch (err) {
+				console.error("Couldn't get reaction file", e);
+			}
 		}
 	}
-	reactions = reactions.flat()
-	output = []
-
+	reactions = reactions.flat();
+	output = [];
+	reactions = formatReactions(reactions);
 	for (let i = 0; i < reagentArray.length; i++) {
-		output[i] = outputFromYAML(reagentArray[i], reactions)
+		output[i] = outputFromYAML(reagentArray[i], reactions);
 	}
-	output = output.flat()
+	output = output.flat();
 
 	fs.writeFileSync("./output.json", JSON.stringify(output, null, 4));
-	return output
+	return output;
 }
 
 // takes YAML (as a JSON object) and turns it into the output schema
@@ -83,6 +92,7 @@ function outputFromYAML(reagents, reactions) {
 		output[i] = {};
 		output[i].id = e.id;
 		output[i].group = e.group;
+		if (!e.color) e.color = "#ffffff";
 		output[i].color = e.color;
 
 		let colors = e.color.substring(1).match(/../g);
@@ -95,18 +105,71 @@ function outputFromYAML(reagents, reactions) {
 			colors = "light";
 		}
 		output[i].textColorTheme = colors;
-
+		output[i].parent = e.parent;
 		output[i].flavor = e.flavor;
 		output[i].metabolisms = e.metabolisms;
-		output[i].plantMetabolism = e.plantMetabolism
+		output[i].plantMetabolism = e.plantMetabolism;
 		let name = bundle.getMessage(e.name);
-		output[i].name = bundle.formatPattern(name.value);
-		let desc = bundle.getMessage(e.desc);
-		output[i].desc = bundle.formatPattern(desc.value);
-		let physicalDesc = bundle.getMessage(e.physicalDesc);
-		output[i].physicalDesc = bundle.formatPattern(physicalDesc.value);
+
+		try{output[i].name = bundle.formatPattern(name.value);} catch (err) {console.warn("No name for " + e.id)}
+		try{let desc = bundle.getMessage(e.desc);
+		output[i].desc = bundle.formatPattern(desc.value);} catch (err) {console.warn("No desc for " + e.id)}
+		try{let physicalDesc = bundle.getMessage(e.physicalDesc);
+		output[i].physicalDesc = bundle.formatPattern(physicalDesc.value);} catch (err) {console.warn("No physicaldesc for " + e.id)}
+
 		output[i].recipes = [];
 	}
+
+	for (let i = 0; i < reactions.length; i++) {
+		let e = reactions[i];
+		for (let j = 0; j < e.products.length; j++) {
+			let f = e.products[j];
+			let found = false;
+			for (let k = 0; k < output.length && !found; k++) {
+				const g = output[k];
+				if (f[0] == g.name) {
+					output[k].recipes.push(e);
+					found = true;
+				}
+			}
+		}
+	}
+	for (const e in output) {
+		output[e].effects = {};
+		if (output[e].parent) {
+			for (let i = 0; i < output.length; i++) {
+				let reag = output[i];
+				if (reag.id == output[e].parent) {
+					output[e].effects = reag.effects;
+				}
+			}
+		}
+		output[e].effects = joinEffects(
+			output[e].effects,
+			effectsFromMetabolisms(output[e].metabolisms, output[e], false)
+		);
+		if (output[e].plantMetabolism) {
+			output[e].effects = joinEffects(
+				output[e].effects,
+				effectsFromMetabolisms(
+					output[e].plantMetabolism,
+					output[e],
+					true
+				)
+			);
+		}
+	}
+	for (const e in output) {
+		output[e].effects = effectObjectFlatten(output[e].effects);
+		output[e].effects = output[e].effects.flatMap((v, i, a) => {
+			return (i < a.length - 1) ? [v, "\n"] : v;
+		});
+		output[e].effectLine = output[e].effects.join("");
+	}
+	return output;
+}
+
+function formatReactions(reactions) {
 	let newReactions = [];
 	for (let j = 0; j < reactions.length; j++) {
 		let f = reactions[j];
@@ -126,52 +189,7 @@ function outputFromYAML(reagents, reactions) {
 		f.products = newArray;
 		newReactions.push(f);
 	}
-	for (let i = 0; i < newReactions.length; i++) {
-		let e = newReactions[i];
-		for (let j = 0; j < e.products.length; j++) {
-			let f = e.products[j];
-			let found = false;
-			for (let k = 0; k < output.length && !found; k++) {
-				const g = output[k];
-				if (f[0] == g.name) {
-					output[k].recipes.push(e);
-					found = true;
-				}
-			}
-		}
-	}
-	for (const e in output) {
-		output[e].effects = [];
-		let f = output[e].metabolisms;
-		for (const g in f) {
-			output[e].effects.push("\'\'\'" + g + "\'\'\':");
-			let h = f[g].effects;
-			for (let i = 0; i < h.length; i++) {
-				let response = effectsHandler(h[i], output[e], false);
-				if (response == "") continue;
-				output[e].effects.push("* " + response);
-			}
-		}
-		f = output[e].plantMetabolism
-		if (f) {
-			output[e].effects.push("'''Plants''':")
-			for (const g in f) {
-				let response = effectsHandler(f[g], output[e], true)
-				if (response == "") continue
-				output[e].effects.push("* " + response)
-			}
-		}
-
-		let result = output[e].effects.flatMap((v, i, a) => {
-			// console.log(a);
-			return a.length - 1 != i ? [v, "\n"] : v;
-		});
-		// console.log(result);
-		output[e].effects = result;
-
-		output[e].effectLine = output[e].effects.join("")
-	}
-	return output;
+	return newReactions;
 }
 
 // This is mostly for testing
@@ -234,6 +252,71 @@ function makeDiv(args) {
 	);
 }
 
+function effectObjectFlatten(effects) {
+	let newEffects = [];
+	for (const g in effects) {
+		console.log(g)
+		newEffects.push("'''" + g + "''' (" + effects[g].metabolismRate + "u per second)");
+		for (let i = 0; i < effects[g].effects.length; i++) {
+			newEffects.push(effects[g].effects[i]);
+		}
+	}
+	return newEffects;
+}
+
+function effectsFromMetabolisms(metabolismList, fullObject, isPlant) {
+	if (metabolismList === undefined) return {};
+	let effects = {};
+	if (!isPlant) {
+		for (const g in metabolismList) {
+			// output[e].effects.push("'''" + g + "''':");
+			effects[g] = {}
+			effects[g].effects = [];
+			effects[g].metabolismRate = metabolismList[g].metabolismRate || 0.5
+			let h = metabolismList[g].effects;
+			for (let i = 0; i < h.length; i++) {
+				let response = effectsHandler(h[i], fullObject, isPlant);
+				if (response == "") continue;
+				effects[g].effects.push("* " + response);
+			}
+		}
+	} else {
+		effects["Plants"] = [];
+		for (let i = 0; i < metabolismList.length; i++) {
+			let response = effectsHandler(
+				metabolismList[i],
+				fullObject,
+				isPlant
+			);
+			if (response == "") continue;
+			effects["Plants"].push("* " + response);
+		}
+	}
+	return effects;
+}
+
+function joinEffects(x, y) {
+	let z = {};
+
+	if (x !== undefined) {
+		for (const e in x) {
+			if (z[e] === undefined) z[e] = {effects: []};
+			z[e].effects.push(x[e].effects);
+			z[e].metabolismRate = x[e].metabolismRate || 0.5
+			z[e].effects = z[e].effects.flat();
+		}
+	}
+	if (y !== undefined) {
+		for (const e in y) {
+			if (z[e] === undefined) z[e] = {effects: []};
+			z[e].effects.push(y[e].effects);
+			z[e].metabolismRate = y[e].metabolismRate || 0.5
+			z[e].effects = z[e].effects.flat();
+		}
+	}
+	return z;
+}
+
 // used by outputFromYAML, is a ton of spaghetti code (looking at you massive switch statement)
 function effectsHandler(data, fullObject, isPlant) {
 	let statusEffects = {
@@ -272,8 +355,8 @@ function effectsHandler(data, fullObject, isPlant) {
 							? "remove "
 							: "Removes "
 						: chanceString
-							? "cause "
-							: "Causes ";
+						? "cause "
+						: "Causes ";
 				let effect = statusEffects[data.key];
 				data.time = data.time || 2;
 				fs =
@@ -281,12 +364,12 @@ function effectsHandler(data, fullObject, isPlant) {
 					(data.type == "Remove"
 						? lNatFix(data.time, 2) + "s of " + effect
 						: effect +
-						" for at least " +
-						lNatFix(data.time, 2) / 10 +
-						"s " +
-						(data.type == "Add"
-							? "with accumulation"
-							: "without accumulation"));
+						  " for at least " +
+						  lNatFix(data.time, 2) / 10 +
+						  "s " +
+						  (data.type == "Add"
+								? "with accumulation"
+								: "without accumulation"));
 				rs = fs;
 				break;
 			case "Drunk":
@@ -317,7 +400,7 @@ function effectsHandler(data, fullObject, isPlant) {
 						(e[1] > 0
 							? '<span style="color:red">'
 							: '<span style="color:green">') +
-						lNatFix(Math.abs(e[1]), 2) +
+						lNatFix(e[1], 2) +
 						"</span> " +
 						e[0];
 				}
@@ -326,8 +409,8 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "both"
 						: "heals"
 					: deals
-						? "deals"
-						: "";
+					? "deals"
+					: "";
 				damages = makeList(damages);
 				initialVerb = "";
 				switch (healsordeals) {
@@ -361,9 +444,9 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "add "
 						: "remove "
 					: sign
-						? "Adds "
-						: "Removes ";
-				fs += lNatFix(Math.abs(data.amount), 2) + "u of ";
+					? "Adds "
+					: "Removes ";
+				fs += lNatFix(data.amount, 2) + "u of ";
 				if (data.reagent) {
 					data.reagent = rName(data.reagent);
 					fs += data.reagent;
@@ -380,8 +463,8 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "induce bleeding"
 						: "reduce bleeding"
 					: sign
-						? "Induces bleeding"
-						: "Reduces bleeding";
+					? "Induces bleeding"
+					: "Reduces bleeding";
 				break;
 			case "SatiateThirst":
 				data.factor = data.factor || 3;
@@ -390,7 +473,10 @@ function effectsHandler(data, fullObject, isPlant) {
 				if (relative == 1) {
 					fs += "thirst averagely";
 				} else {
-					fs += "thirst at " + lNatFix(relative, 3) + "x the average rate";
+					fs +=
+						"thirst at " +
+						lNatFix(relative, 3) +
+						"x the average rate";
 				}
 				rs = fs;
 				break;
@@ -401,9 +487,9 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "add "
 						: "remove "
 					: sign
-						? "Adds "
-						: "Removes ";
-				fs += lFormJ(Math.abs(data.amount)) + " of heat ";
+					? "Adds "
+					: "Removes ";
+				fs += lFormJ(data.amount) + " of heat ";
 				fs += sign ? "to " : "from ";
 				fs += "the body it's in";
 				rs = fs;
@@ -414,7 +500,8 @@ function effectsHandler(data, fullObject, isPlant) {
 			case "CureZombieInfection":
 				fs = chanceString ? "cure " : "Cures ";
 				fs += "an ongoing zombie infection";
-				if (data.innoculate) fs += ", and provides immunity to future infections";
+				if (data.innoculate)
+					fs += ", and provides immunity to future infections";
 				rs = fs;
 				break;
 			case "ModifyBloodLevel":
@@ -424,8 +511,8 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "increase "
 						: "decrease "
 					: sign
-						? "Increases "
-						: "Decreases ";
+					? "Increases "
+					: "Decreases ";
 				fs += "blood level";
 				rs = fs;
 				break;
@@ -436,7 +523,10 @@ function effectsHandler(data, fullObject, isPlant) {
 				if (hungerRate == 1) {
 					fs += "hunger averagely";
 				} else {
-					fs += "hunger at " + lNatFix(hungerRate, 3) + "x the average rate";
+					fs +=
+						"hunger at " +
+						lNatFix(hungerRate, 3) +
+						"x the average rate";
 				}
 				rs = fs;
 				break;
@@ -448,9 +538,15 @@ function effectsHandler(data, fullObject, isPlant) {
 						? "deal "
 						: "heal "
 					: sign
-						? "Deals "
-						: "Heals ";
+					? "Deals "
+					: "Heals ";
 				fs += "eye damage";
+				rs = fs;
+				break;
+			case "ChemCleanBloodstream":
+				data.cleanseRate = data.cleanseRate || 3;
+				fs = chanceString ? "cleanse " : "Cleanses ";
+				fs += "the bloodstream of other chemicals";
 				rs = fs;
 				break;
 			case "MakeSentient":
@@ -459,7 +555,9 @@ function effectsHandler(data, fullObject, isPlant) {
 				rs = fs;
 				break;
 			case "ResetNarcolepsy":
-				fs = chanceString ? "temporarily stave " : "Temporarily staves ";
+				fs = chanceString
+					? "temporarily stave "
+					: "Temporarily staves ";
 				fs += "off narcolepsy";
 				rs = fs;
 				break;
@@ -469,97 +567,152 @@ function effectsHandler(data, fullObject, isPlant) {
 				rs = fs;
 				break;
 			case "Polymorph":
-				fs = chanceString ? "polymorph " : "Polymorphs"
-				fs += "the metabolizer into a "
+				fs = chanceString ? "polymorph " : "Polymorphs";
+				fs += "the metabolizer into a ";
 				switch (data.prototype) {
 					case "TreeMorph":
-						fs += "tree"
+						fs += "tree";
 						break;
 					default:
-						fs = undefined
+						fs = undefined;
 						break;
 				}
-				rs = fs
+				rs = fs;
 				break;
 			case "Oxygenate":
-				rs = ""
+				rs = "";
+				break;
+			case "ModifyLungGas":
+				rs = "";
+				break;
+			case "AdjustAlert":
+				rs = "";
+				break;
+			case "Electrocute":
+				data.electrocuteTime = data.electrocuteTime || 2;
+				fs = chanceString ? "electrocute " : "Electrocutes ";
+				fs +=
+					"the metabolizer for " +
+					data.electrocuteTime +
+					" second" +
+					(data.electrocuteTime != 1 ? "s" : "");
+				rs = fs;
+				break;
+			case "MovespeedModifier":
+				data.walkSpeedModifier = data.walkSpeedModifier || 1;
+				data.statusLifetime = data.statusLifetime || 2;
+				fs = chanceString ? "modify " : "Modifies ";
+				fs += "movement speed by " + lNatFix(data.walkSpeedModifier, 3);
+				fs +=
+					"x for at least " +
+					lNatFix(data.statusLifetime, 3) +
+					" second";
+				fs += data.statusLifetime != 1 ? "s" : "";
+				rs = fs;
+				break;
+			case "FlammableReaction":
+				fs = chanceString ? "increase " : "Increases ";
+				fs += "flammability";
+				rs = fs;
+				break;
+			case "Ignite":
+				fs = chanceString ? "ignite " : "Ignites ";
+				fs += "the metabolizer";
+				rs = fs;
+				break;
+			case "CauseZombieInfection":
+				fs = chanceString ? "give " : "Gives ";
+				fs += "the individual the zombie infection";
 				break;
 			default:
 				throw new Error(JSON.stringify(data, null, 4));
-				break;
 		}
 	} else {
 		function lPlantAdjust(key, positive) {
-			let returnValue = chanceString ? "adjust " : "Adjusts "
-			data.amount = data.amount || 1
-			let sign = (!positive == !(data.amount >= 0))
-			returnValue += bundle.getMessage(key).value + " by "
-			returnValue += sign ? '<span style="color:green">' : '<span style="color:red">'
-			returnValue += data.amount + "</span>"
-			return returnValue
+			let returnValue = chanceString ? "adjust " : "Adjusts ";
+			data.amount = data.amount || 1;
+			let sign = !positive == !(data.amount >= 0);
+			returnValue += bundle.getMessage(key).value + " by ";
+			returnValue += sign
+				? '<span style="color:green">'
+				: '<span style="color:red">';
+			returnValue += data.amount + "</span>";
+			return returnValue;
 		}
 		switch (data.class) {
 			case "PlantAdjustNutrition":
-				rs = lPlantAdjust("plant-attribute-nutrition", true)
+				rs = lPlantAdjust("plant-attribute-nutrition", true);
 				break;
 			case "PlantAdjustHealth":
-				rs = lPlantAdjust("plant-attribute-health", true)
+				rs = lPlantAdjust("plant-attribute-health", true);
 				break;
 			case "PlantAdjustMutationMod":
-				rs = lPlantAdjust("plant-attribute-mutation-mod", true)
+				rs = lPlantAdjust("plant-attribute-mutation-mod", true);
 				break;
+			case "PlantAdjustMutationLevel":
+				rs = lPlantAdjust("plant-attribute-mutation-level", true);
 			case "PlantAdjustToxins":
-				rs = lPlantAdjust("plant-attribute-toxins", false)
+				rs = lPlantAdjust("plant-attribute-toxins", false);
 				break;
 			case "PlantAdjustPests":
-				rs = lPlantAdjust("plant-attribute-pests", false)
+				rs = lPlantAdjust("plant-attribute-pests", false);
 				break;
 			case "PlantAdjustWeeds":
-				rs = lPlantAdjust("plant-attribute-weeds", false)
+				rs = lPlantAdjust("plant-attribute-weeds", false);
 				break;
 			case "RobustHarvest {}":
 				// potencyLimit and the other variables are not the actual names, as they aren't actually implemented and I just guessed. Should probably fix if it ever comes into play
 				data.potencyLimit = data.potencyLimit || 50;
 				data.potencyIncrease = data.potencyIncrease || 3;
-				data.potencySeedlessThreshold = data.potencySeedlessThreshold || 30;
-				fs = chanceString ? "increase " : "Increases "
-				fs += "the plant's potency by "
-					+ data.potencyIncrease
-					+ " up to a maximum of "
-					+ data.potencyLimit +
-					". Causes the plant to lose its seeds once the potency reaches "
-					+ data.potencySeedlessThreshold +
-					". Trying to add potency over "
-					+ data.potencyLimit +
+				data.potencySeedlessThreshold =
+					data.potencySeedlessThreshold || 30;
+				fs = chanceString ? "increase " : "Increases ";
+				fs +=
+					"the plant's potency by " +
+					data.potencyIncrease +
+					" up to a maximum of " +
+					data.potencyLimit +
+					". Causes the plant to lose its seeds once the potency reaches " +
+					data.potencySeedlessThreshold +
+					". Trying to add potency over " +
+					data.potencyLimit +
 					" may cause a decrease in yield at a 10% chance";
-				rs = fs
+				rs = fs;
 				break;
 			case "PlantRestoreSeeds":
-				rs = (chanceString ? "restore " : "Restores ") + "the seeds of the plant"
+				rs =
+					(chanceString ? "restore " : "Restores ") +
+					"the seeds of the plant";
 				break;
 			case "PlantAdjustPotency":
-				rs = lPlantAdjust("plant-attribute-potency", true)
+				rs = lPlantAdjust("plant-attribute-potency", true);
 				break;
 			case "PlantAffectGrowth":
-				rs = lPlantAdjust("plant-attribute-growth", true)
+				rs = lPlantAdjust("plant-attribute-growth", true);
 				break;
 			case "PlantAdjustWater":
-				rs = lPlantAdjust("plant-attribute-water", true)
+				rs = lPlantAdjust("plant-attribute-water", true);
 				break;
 			case "PlantDiethylamine {}":
-				rs = (chanceString ? "increase " : "Increases ") + "the plant's lifespan and/or base health with 10% chance for each"
+				rs =
+					(chanceString ? "increase " : "Increases ") +
+					"the plant's lifespan and/or base health with 10% chance for each";
 				break;
 			case "PlantPhalanximine":
-				rs = (chanceString ? "restore " : "Restores ") + "viability to a plant rendered nonviable by a mutation"
-					; break
+				rs =
+					(chanceString ? "restore " : "Restores ") +
+					"viability to a plant rendered nonviable by a mutation";
+				break;
 			case "PlantCryoxadone {}":
-				rs = (chanceString ? "age " : "Ages ") + "back the plant, depending on the plant's age and time to grow"
+				rs =
+					(chanceString ? "age " : "Ages ") +
+					"back the plant, depending on the plant's age and time to grow";
 				break;
 			default:
 				throw new Error(JSON.stringify(data, null, 4));
 				break;
 		}
-		console.log(rs)
+		console.log(rs);
 	}
 
 	if (rs === undefined) return undefined;
@@ -568,7 +721,7 @@ function effectsHandler(data, fullObject, isPlant) {
 	let cs = "";
 	if (data.conditions) {
 		for (const e of data.conditions) {
-			cs = ""
+			cs = "";
 			switch (e.class) {
 				case "ReagentThreshold":
 					e.min = e.min || 0;
@@ -582,7 +735,10 @@ function effectsHandler(data, fullObject, isPlant) {
 								lNatFix(e.max, 2) +
 								"u of ";
 						} else {
-							cs = "there's at most " + lNatFix(e.max, 2) + "u of ";
+							cs =
+								"there's at most " +
+								lNatFix(e.max, 2) +
+								"u of ";
 						}
 					} else {
 						cs = "there's at least " + lNatFix(e.min, 2) + "u of ";
@@ -630,23 +786,56 @@ function effectsHandler(data, fullObject, isPlant) {
 								lNatFix(e.max, 2) +
 								" total damage";
 						} else {
-							cs += "at most " + lNatFix(e.max, 2) + " total damage";
+							cs +=
+								"at most " +
+								lNatFix(e.max, 2) +
+								" total damage";
 						}
 					} else {
 						cs += "at least " + lNatFix(e.min, 2) + " total damage";
 					}
 					conditions.push(cs);
 					break;
+				case "Hunger":
+					e.min = e.min || 0;
+					e.max = e.max || Infinity;
+					cs = "the target has ";
+					if (e.max !== Infinity) {
+						if (e.min > 0) {
+							cs +=
+								"between " +
+								lNatFix(e.min, 2) +
+								" and " +
+								lNatFix(e.max, 2) +
+								" total hunger";
+						} else {
+							cs +=
+								"at most " +
+								lNatFix(e.max, 2) +
+								" total hunger";
+						}
+					} else {
+						cs += "at least " + lNatFix(e.min, 2) + " total hunger";
+					}
+					conditions.push(cs)
+					break;
 				case "OrganType":
 					if (e.shouldHave === undefined) e.shouldHave = true;
-					cs = "the metabolizing organ "
-					cs += e.shouldHave ? "is " : "is not "
-					cs += lIndef(e.type) + " " + e.type + " organ"
-					conditions.push(cs)
+					cs = "the metabolizing organ ";
+					cs += e.shouldHave ? "is " : "is not ";
+					cs += lIndef(e.type) + " " + e.type + " organ";
+					conditions.push(cs);
+					break;
+				case "HasTag":
+					if (e.invert === undefined) e.invert = false;
+					cs = "the target ";
+					cs += e.invert ? "does not have " : "has ";
+					cs += "the tag " + e.tag;
+					conditions.push(cs);
 					break;
 				default:
 					console.warn("NO CONDITION for " + e.class + "\n");
-					console.log(e)
+					console.log(e);
 					break;
 			}
 		}
@@ -659,17 +848,22 @@ function effectsHandler(data, fullObject, isPlant) {
 
 // gets the "real name" of a reagent. Usually this is just reagent-name-[ID in lowercase] but sometimes it is different so just putting the exceptions in manually
 function rName(reagent) {
-	if (Case.lower(reagent) == "copperblood")
-		return rName("HemocyaninBlood");
-	if (Case.lower(reagent) == "soapreagent")
-		return rName("Soap");
+	if (Case.lower(reagent) == "copperblood") return rName("HemocyaninBlood");
+	if (Case.lower(reagent) == "soapreagent") return rName("Soap");
 	if (Case.lower(reagent) == "eznutrient") {
-		return rName("e-z-nutrient")
+		return rName("e-z-nutrient");
 	}
+	if (Case.lower(reagent) == "juicethatmakesyouweh") return rName("weh");
+	if (Case.lower(reagent) == "eggcooked") return rName("egg");
 	try {
 		return bundle.getMessage("reagent-name-" + Case.kebab(reagent)).value;
 	} catch (err) {
-		console.warn("Warning:", Case.kebab(reagent), reagent, "does not exist");
+		console.warn(
+			"Warning:",
+			Case.kebab(reagent),
+			reagent,
+			"does not exist"
+		);
 	}
 	try {
 		return bundle.getMessage("reagent-name-" + Case.lower(reagent)).value;
@@ -679,8 +873,8 @@ function rName(reagent) {
 	throw new Error("Couldn't find " + reagent);
 }
 
-// I am realising that this should return a natural number and not an integer but I just pass all the values in with Maths.Abs now anyways
 function lNatFix(num, pres) {
+	num = Math.abs(num);
 	pres = pres || 0;
 	num = num * Math.pow(10, pres);
 	num = Math.round(num);
@@ -723,7 +917,9 @@ function lFormGen(unit) {
 }
 
 function lIndef(word) {
-	return ["a", "e", "i", "o", "u"].includes(word.substring(0, 1)) ? "an" : "a"
+	return ["a", "e", "i", "o", "u"].includes(word.substring(0, 1))
+		? "an"
+		: "a";
 }
 
 // stolen from the game's localisation manager
@@ -764,7 +960,9 @@ function loadFluentDir(dir) {
 	// Chem names and descriptions
 	for (const e of fileNames) {
 		if (!e.match(/\.ftl/g)) continue;
-		bundle.addResource(new FluentResource(fs.readFileSync(dir + e, "utf8")));
+		bundle.addResource(
+			new FluentResource(fs.readFileSync(dir + e, "utf8"))
+		);
 		console.log("Loaded " + e);
 	}
 }
@@ -772,17 +970,17 @@ function loadFluentDir(dir) {
 function parseArgs(args) {
 	let parsedArgs = {
 		custom: [],
-		params: {}
-	}
+		params: {},
+	};
 
 	for (let i = 0; i < args.length; i++) {
 		if (args[i].substring(0, 1) != "-") parsedArgs.custom.push(args[i]);
 		else {
-			let option = args[i].substring(1)
-			i++
-			let value = args[i]
-			parsedArgs.params[option] = value
+			let option = args[i].substring(1);
+			i++;
+			let value = args[i];
+			parsedArgs.params[option] = value;
 		}
 	}
-	return parsedArgs
+	return parsedArgs;
 }

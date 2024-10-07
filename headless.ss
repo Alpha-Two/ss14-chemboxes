@@ -1,0 +1,1 @@
+g -y biological,botany,chemicals,cleaning,elements,fun,gases,medicine,narcotics,pyrotechnic,toxins,Consumable/Drink/alcohol,Consumable/Drink/base_drink,Consumable/Drink/drinks,Consumable/Drink/juice,Consumable/Drink/soda,Consumable/Food/condiments,Consumable/Food/food,Consumable/Food/ingredients,single_reagent
