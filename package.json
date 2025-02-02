@@ -11,9 +11,11 @@
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
     "change-case-all": "^2.1.0",
+    "color": "^4.2.3",
     "debug": "^4.3.7",
     "fs": "^0.0.1-security",
     "js-yaml": "^4.1.0",
+    "nodemw": "^0.22.0",
     "prompt-sync": "^4.2.0",
     "simple-git": "^3.26.0"
   }

@@ -4,10 +4,20 @@ var yaml = require("js-yaml");
 const { exit } = require("process");
 const { Case } = require("change-case-all");
 var { FluentBundle, FluentResource } = require("@fluent/bundle");
+const Color = require("color")
+
+const login = JSON.parse(fs.readFileSync("./MWlogin.json"));
+const bot = require("nodemw");
+const client = new bot({
+	protocol: "https",
+	server: "wiki.spacestation14.com",
+	path: "/w",
+	debug: true,
+});
 
 // ****************** CONFIGURING CONSTANTS ******************
 const resourcesFolder = "./space-station-14/Resources/";
-const commandArray = fs.readFileSync("./headless.ss").toString().split("\n")
+const commandArray = fs.readFileSync("./headless.ss").toString().split("\n");
 // ***********************************************************
 
 // loading fluent variables
@@ -20,6 +30,9 @@ loadFluentDir(resourcesFolder + "Locale/en-US/guidebook/chemistry/");
 var fullData = [];
 var reagentArray = [];
 var reactions = [];
+
+var debugGroupList = []
+
 
 // internal commandline let's go! TODO make this take arguments from the actual commandline + a config file
 while (true) {
@@ -40,6 +53,8 @@ while (true) {
 		case "o":
 			makeDiv(args);
 			break;
+		case "w":
+			sendToMW(args);
 		default:
 			exit();
 			break;
@@ -48,78 +63,112 @@ while (true) {
 
 // TODO add a way of reading ALL reagents and reactions
 function fullUpdate(args) {
-	if (args.params.y) {
-		let filesToRead = args.params.y.split(",");
-		for (let i = 0; i < filesToRead.length; i++) {
-			const e = filesToRead[i];
-			try{reagentArray.push(
-				readYAML(resourcesFolder + "Prototypes/Reagents/" + e + ".yml")
-			);} catch (err) {
-				console.error("Couldn't find reagent file", e)
-			}
-			try {
-				reactions.push(
-					readYAML(
-						resourcesFolder +
-							"Prototypes/Recipes/Reactions/" +
-							e +
-							".yml"
-					)
-				);
-			} catch (err) {
-				console.error("Couldn't get reaction file", e);
-			}
+	if (!args.params.y) throw new Error("no -y provided");
+	let filesToRead = args.params.y.split(",");
+	for (let i = 0; i < filesToRead.length; i++) {
+		let e = filesToRead[i];
+		try {
+			reactions.push(
+				readYAML(
+					resourcesFolder +
+						"Prototypes/Recipes/Reactions/" +
+						e +
+						".yml"
+				)
+			);
+		} catch (err) {
+			if(err.toString().substring(0, 13) == "Error: ENOENT"){
+			console.error(
+				"Couldn't parse reaction file",
+				e,
+				"\nError was: " + err
+			);} else {console.log(err.toString()); throw err}
 		}
 	}
+
 	reactions = reactions.flat();
 	output = [];
 	reactions = formatReactions(reactions);
-	for (let i = 0; i < reagentArray.length; i++) {
-		output[i] = outputFromYAML(reagentArray[i], reactions);
+	
+	for (let i = 0; i < filesToRead.length; i++) {
+		let e = filesToRead[i];
+
+		try {
+			reagentArray.push(
+				readYAML(resourcesFolder + "Prototypes/Reagents/" + e + ".yml")
+			);
+
+			output[i] = outputFromYAML(reagentArray[i], reactions, e);
+		} catch (err) {
+			if(err.toString().substring(0, 13) == "Error: ENOENT"){
+				console.error(
+					"Couldn't parse reagent file",
+					e,
+					"\nError was: " + err
+				);} else {console.log(err.toString()); throw err}
+		}
 	}
 	output = output.flat();
 
 	fs.writeFileSync("./output.json", JSON.stringify(output, null, 4));
+
+	console.log(debugGroupList)
 	return output;
 }
 
 // takes YAML (as a JSON object) and turns it into the output schema
-function outputFromYAML(reagents, reactions) {
+function outputFromYAML(reagents, reactions, source) {
 	let output = [];
 	// console.log(reagents, reactions)
 	for (let i = 0; i < reagents.length; i++) {
 		const e = reagents[i];
 		output[i] = {};
 		output[i].id = e.id;
+		if (e.group === undefined) e.group = getGroup(source);
 		output[i].group = e.group;
+		let found = false;
+		for (let d = 0; d < debugGroupList.length && !found; d++) {
+			if (debugGroupList[d] == e.group) found = true;
+		}
+		if (!found) {
+			debugGroupList.push(e.group)
+		}
+
 		if (!e.color) e.color = "#ffffff";
 		output[i].color = e.color;
 
-		let colors = e.color.substring(1).match(/../g);
-		colors[0] = parseInt(colors[0], 16) * 0.299;
-		colors[1] = parseInt(colors[1], 16) * 0.587;
-		colors[2] = parseInt(colors[2], 16) * 0.114;
-		if (colors[0] + colors[1] + colors[2] > 186) {
-			colors = "dark";
-		} else {
-			colors = "light";
-		}
-		output[i].textColorTheme = colors;
+		let textColorTheme = Color(e.color).lightness() > 186/2.56 ? "dark" : "light"
+		console.log(Color(e.color).lightness())
+		output[i].textColorTheme = textColorTheme
 		output[i].parent = e.parent;
 		output[i].flavor = e.flavor;
 		output[i].metabolisms = e.metabolisms;
 		output[i].plantMetabolism = e.plantMetabolism;
 		let name = bundle.getMessage(e.name);
 
-		try{output[i].name = bundle.formatPattern(name.value);} catch (err) {console.warn("No name for " + e.id)}
-		try{let desc = bundle.getMessage(e.desc);
-		output[i].desc = bundle.formatPattern(desc.value);} catch (err) {console.warn("No desc for " + e.id)}
-		try{let physicalDesc = bundle.getMessage(e.physicalDesc);
-		output[i].physicalDesc = bundle.formatPattern(physicalDesc.value);} catch (err) {console.warn("No physicaldesc for " + e.id)}
+		try {
+			output[i].name = bundle.formatPattern(name.value);
+		} catch (err) {
+			console.warn("No name for " + e.id);
+			output[i].name = "???";
+		}
+		try {
+			let desc = bundle.getMessage(e.desc);
+			output[i].desc = bundle.formatPattern(desc.value);
+		} catch (err) {
+			console.warn("No desc for " + e.id);
+			output[i].desc = "";
+		}
+		try {
+			let physicalDesc = bundle.getMessage(e.physicalDesc);
+			output[i].physicalDesc = bundle.formatPattern(physicalDesc.value);
+		} catch (err) {
+			console.warn("No physicaldesc for " + e.id);
+			output[i].physicalDesc = "???";
+		}
 
 		output[i].recipes = [];
 	}
-
 	for (let i = 0; i < reactions.length; i++) {
 		let e = reactions[i];
 		for (let j = 0; j < e.products.length; j++) {
@@ -162,11 +211,41 @@ function outputFromYAML(reagents, reactions) {
 	for (const e in output) {
 		output[e].effects = effectObjectFlatten(output[e].effects);
 		output[e].effects = output[e].effects.flatMap((v, i, a) => {
-			return (i < a.length - 1) ? [v, "\n"] : v;
+			return i < a.length - 1 ? [v, "\n"] : v;
 		});
 		output[e].effectLine = output[e].effects.join("");
 	}
 	return output;
+}
+
+function getGroup(source) {
+	switch (source) {
+		case "Consumable/Drink/base_drink":
+			return "Drinks";
+		case "Consumable/Drink/alcohol":
+			return "Drinks";
+		case "Consumable/Drink/soda":
+			return "Drinks";
+		case "Consumable/Drink/juice":
+			return "Drinks";
+		case "Consumable/Drink/drinks":
+			return "Drinks";
+		case "Consumable/Food/food":
+			return "Foods";
+		case "pyrotechnic":
+			return "Pyrotechnic";
+		case "fun":
+			return "Fun";
+		case "gases":
+			return "Gases";
+		case "chemicals":
+			return "Chemicals";
+		case "cleaning":
+			return "Cleaning";
+		default:
+			throw new Error("Group not made for " + source);
+			break;
+	}
 }
 
 function formatReactions(reactions) {
@@ -179,18 +258,21 @@ function formatReactions(reactions) {
 				rName(k),
 				f.reactants[k].amount,
 				!!f.reactants[k].catalyst,
+				k,
 			]);
 		}
 		f.reactants = newArray;
 		newArray = [];
 		for (const k in f.products) {
-			newArray.push([rName(k), f.products[k]]);
+			newArray.push([rName(k), f.products[k], k]);
 		}
 		f.products = newArray;
 		newReactions.push(f);
 	}
 	return newReactions;
 }
+
+
 
 // This is mostly for testing
 function makeDiv(args) {
@@ -209,7 +291,6 @@ function makeDiv(args) {
 	} else {
 		colors = "#ffffff";
 	}
-	// console.log(colors);
 	recipeOutput = "";
 	for (let i = 0; i < data.recipes.length; i++) {
 		recipeOutput += "{{Recipe Box|name=" + Case.title(data.name);
@@ -255,8 +336,9 @@ function makeDiv(args) {
 function effectObjectFlatten(effects) {
 	let newEffects = [];
 	for (const g in effects) {
-		console.log(g)
-		newEffects.push("'''" + g + "''' (" + effects[g].metabolismRate + "u per second)");
+		newEffects.push(
+			"'''" + g + "''' (" + effects[g].metabolismRate + "u per second)"
+		);
 		for (let i = 0; i < effects[g].effects.length; i++) {
 			newEffects.push(effects[g].effects[i]);
 		}
@@ -270,9 +352,9 @@ function effectsFromMetabolisms(metabolismList, fullObject, isPlant) {
 	if (!isPlant) {
 		for (const g in metabolismList) {
 			// output[e].effects.push("'''" + g + "''':");
-			effects[g] = {}
+			effects[g] = {};
 			effects[g].effects = [];
-			effects[g].metabolismRate = metabolismList[g].metabolismRate || 0.5
+			effects[g].metabolismRate = metabolismList[g].metabolismRate || 0.5;
 			let h = metabolismList[g].effects;
 			for (let i = 0; i < h.length; i++) {
 				let response = effectsHandler(h[i], fullObject, isPlant);
@@ -280,16 +362,20 @@ function effectsFromMetabolisms(metabolismList, fullObject, isPlant) {
 				effects[g].effects.push("* " + response);
 			}
 		}
+		
 	} else {
 		effects["Plants"] = [];
+		effects["Plants"].effects = []
+		console.log(metabolismList)
 		for (let i = 0; i < metabolismList.length; i++) {
+			
 			let response = effectsHandler(
 				metabolismList[i],
 				fullObject,
 				isPlant
 			);
 			if (response == "") continue;
-			effects["Plants"].push("* " + response);
+			effects["Plants"].effects.push("* " + response);
 		}
 	}
 	return effects;
@@ -300,17 +386,17 @@ function joinEffects(x, y) {
 
 	if (x !== undefined) {
 		for (const e in x) {
-			if (z[e] === undefined) z[e] = {effects: []};
+			if (z[e] === undefined) z[e] = { effects: [] };
 			z[e].effects.push(x[e].effects);
-			z[e].metabolismRate = x[e].metabolismRate || 0.5
+			z[e].metabolismRate = x[e].metabolismRate || 0.5;
 			z[e].effects = z[e].effects.flat();
 		}
 	}
 	if (y !== undefined) {
 		for (const e in y) {
-			if (z[e] === undefined) z[e] = {effects: []};
+			if (z[e] === undefined) z[e] = { effects: [] };
 			z[e].effects.push(y[e].effects);
-			z[e].metabolismRate = y[e].metabolismRate || 0.5
+			z[e].metabolismRate = y[e].metabolismRate || 0.5;
 			z[e].effects = z[e].effects.flat();
 		}
 	}
@@ -623,6 +709,7 @@ function effectsHandler(data, fullObject, isPlant) {
 			case "CauseZombieInfection":
 				fs = chanceString ? "give " : "Gives ";
 				fs += "the individual the zombie infection";
+				rs = fs;
 				break;
 			default:
 				throw new Error(JSON.stringify(data, null, 4));
@@ -651,6 +738,7 @@ function effectsHandler(data, fullObject, isPlant) {
 				break;
 			case "PlantAdjustMutationLevel":
 				rs = lPlantAdjust("plant-attribute-mutation-level", true);
+				break;	
 			case "PlantAdjustToxins":
 				rs = lPlantAdjust("plant-attribute-toxins", false);
 				break;
@@ -712,7 +800,6 @@ function effectsHandler(data, fullObject, isPlant) {
 				throw new Error(JSON.stringify(data, null, 4));
 				break;
 		}
-		console.log(rs);
 	}
 
 	if (rs === undefined) return undefined;
@@ -817,7 +904,7 @@ function effectsHandler(data, fullObject, isPlant) {
 					} else {
 						cs += "at least " + lNatFix(e.min, 2) + " total hunger";
 					}
-					conditions.push(cs)
+					conditions.push(cs);
 					break;
 				case "OrganType":
 					if (e.shouldHave === undefined) e.shouldHave = true;
@@ -983,4 +1070,15 @@ function parseArgs(args) {
 		}
 	}
 	return parsedArgs;
+}
+
+function sendToMW(args) {
+	client.logIn(login.username, login.password, function () {
+		client.edit(
+			"Module:Chem box/chem data.json",
+			fs.readFileSync("./outpust.json"),
+			"Automated update TESTING",
+			false
+		);
+	});
 }
